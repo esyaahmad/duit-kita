@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #ede7d9;
+  --surface: #f7f3e8;
+  --raised: #fffdf6;
+  --ink: #201d1a;
+  --muted: #6b6559;
+  --line: #201d1a;
+  --teal: #0f6e63;
+  --mustard: #d9a21b;
+  --brick: #b5462b;
+  --shadow: rgba(32, 29, 26, 1);
+}
+
+html.dark {
+  --paper: #171613;
+  --surface: #201e19;
+  --raised: #2a2721;
+  --ink: #ede7d9;
+  --muted: #948c7c;
+  --line: #4d4839;
+  --teal: #46b9a8;
+  --mustard: #e7bc5c;
+  --brick: #de7b58;
+  --shadow: rgba(0, 0, 0, 0.85);
+}
+
+html {
+  background: var(--paper);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  /* garis-garis halus seperti kertas buku kas */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 27px,
+    color-mix(in srgb, var(--line) 6%, transparent) 27px 28px
+  );
+  overscroll-behavior-y: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .frame {
+    @apply border-2 border-line bg-surface;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .frame-flat {
+    @apply border-2 border-line bg-surface;
+  }
+  .press {
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .press:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--shadow) !important;
+  }
+  .btn {
+    @apply border-2 border-line bg-surface px-4 py-2.5 font-medium press;
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .btn-utama {
+    @apply btn text-paper;
+    background: var(--teal);
+    color: var(--paper);
+  }
+  .field {
+    @apply w-full border-2 border-line bg-raised px-3 py-2.5 text-ink;
+    outline: none;
+  }
+  .field::placeholder {
+    color: var(--muted);
+  }
+  .num {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .chip {
+    @apply border-2 border-line px-3 py-1.5 text-sm bg-surface press;
+  }
+  .chip-aktif {
+    background: var(--ink);
+    color: var(--paper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
