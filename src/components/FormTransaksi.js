@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { Panel, Label, Pilihan } from "./ui";
+import InputUang from "./InputUang";
 import { hariIni } from "@/lib/format";
+import { hitungJumlah } from "@/lib/hitung";
 
 const kosong = {
   tipe: "expense",
@@ -19,9 +21,11 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
   const [f, setF] = useState(kosong);
   const [sibuk, setSibuk] = useState(false);
   const [galat, setGalat] = useState(null);
+  const [jadikanCepat, setJadikanCepat] = useState(false);
 
   useEffect(() => {
     if (!buka) return;
+    setJadikanCepat(false);
     if (awal) {
       setF({
         tipe: awal.tipe,
@@ -43,7 +47,7 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
 
   async function simpan(e) {
     e.preventDefault();
-    const jumlah = Number(String(f.jumlah).replace(/\D/g, ""));
+    const jumlah = hitungJumlah(f.jumlah);
     if (!jumlah) return setGalat("Isi jumlahnya dulu.");
     if (!f.wallet_id) return setGalat("Pilih dompet sumber.");
     if (f.tipe === "transfer" && !f.wallet_tujuan_id)
@@ -74,6 +78,19 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
       ? await supabase.from("transactions").update(baris).eq("id", awal.id)
       : await supabase.from("transactions").insert({ ...baris, user_id: user.id });
 
+    if (!error && jadikanCepat && f.tipe !== "transfer") {
+      const kat = kategori.find((k) => k.id === f.category_id);
+      await supabase.from("quick_txns").insert({
+        user_id: user.id,
+        label: f.catatan || kat?.nama || "Transaksi cepat",
+        tipe: f.tipe,
+        jumlah,
+        category_id: f.category_id || null,
+        wallet_id: f.wallet_id || null,
+        catatan: f.catatan || null,
+      });
+    }
+
     setSibuk(false);
     if (error) return setGalat(error.message);
     selesai();
@@ -103,17 +120,7 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
         />
 
         <Label teks="Jumlah">
-          <div className="flex items-center border-2 border-line bg-raised">
-            <span className="px-3 text-muted num">Rp</span>
-            <input
-              inputMode="numeric"
-              className="w-full bg-transparent px-1 py-3 text-2xl num outline-none"
-              value={f.jumlah ? Number(f.jumlah).toLocaleString("id-ID") : ""}
-              onChange={(e) => set("jumlah")(e.target.value.replace(/\D/g, ""))}
-              placeholder="0"
-              autoFocus
-            />
-          </div>
+          <InputUang nilai={f.jumlah} ubah={set("jumlah")} autoFocus />
         </Label>
 
         {f.tipe !== "transfer" && (
@@ -185,6 +192,18 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
             placeholder="Nasi goreng depan kantor"
           />
         </Label>
+
+        {!awal && f.tipe !== "transfer" && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-4 w-4"
+              checked={jadikanCepat}
+              onChange={(e) => setJadikanCepat(e.target.checked)}
+            />
+            Simpan juga sebagai transaksi cepat
+          </label>
+        )}
 
         {galat && (
           <p

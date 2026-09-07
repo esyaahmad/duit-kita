@@ -14,12 +14,45 @@ Next.js 14 (App Router) + Supabase, gratis di-hosting di Vercel.
 | Dompet | Tunai, bank, e-wallet, kartu, investasi — saldo dihitung otomatis |
 | Kategori | Kategori pemasukan & pengeluaran dengan ikon |
 | Target | Target tabungan dengan setoran bertahap |
-| Profil | Nama, pemilih tema, ekspor CSV, keluar |
+| Langganan | Tagihan & transaksi berulang (mingguan/bulanan/tahunan), komitmen bulanan |
+| Transaksi cepat | Template 1-ketuk yang muncul di Beranda |
+| Profil | Nama, pemilih tema, kunci PIN, ekspor CSV, keluar |
 
 Fitur lain: pencatatan pindah dana antar dompet, 7 tema tampilan
 (Kertas, Malam, Futuristik, Go Green, Senja, Samudra, Grand Line) lewat
 Profil, PWA (bisa dipasang ke home screen), dan Row Level Security sehingga
 data tiap akun terisolasi di database.
+
+### Kalkulator di kolom jumlah
+
+Semua kolom nominal menerima ekspresi: ketik `15000+3200+50000` atau pakai
+tombol `+ − ×` di bawah kolom. Hasilnya tampil langsung (`= Rp 68.200`).
+
+### Transaksi cepat
+
+Buat template di **Lainnya → Transaksi cepat** (atau centang "Simpan juga
+sebagai transaksi cepat" saat mencatat). Template muncul sebagai tombol
+di Beranda — sekali ketuk langsung tercatat dengan tanggal hari ini.
+
+### Langganan & transaksi berulang
+
+**Lainnya → Langganan**: Netflix, listrik, cicilan, iuran. Atur siklus
+(mingguan/bulanan/tahunan) dan tanggalnya. Yang **otomatis** langsung
+tercatat saat Beranda dibuka; sisanya muncul sebagai kartu "Langganan jatuh
+tempo" dengan tombol **Catat / Lewati**. Total "komitmen bulanan" dihitung
+otomatis (mingguan × 52⁄12, tahunan ÷ 12).
+
+### Aktivitas keluarga
+
+Di Beranda, bila kamu punya dompet bersama, muncul daftar aktivitas terbaru
+anggota lain: **"Rina catat Belanja · 2 jam lalu · Rp 150.000"**.
+
+### Kunci PIN
+
+**Profil → Kunci PIN**: 6 angka. Aplikasi mengunci diri setelah ±90 detik
+tidak dipakai atau setelah di-background lalu dibuka lagi. PIN di-hash
+(SHA-256 + garam acak) di HP; server tak pernah menyimpan PIN asli.
+"Lupa PIN?" menghapus PIN setelah verifikasi kata sandi akun.
 
 ### Dompet bersama (catatan keluarga)
 
@@ -39,6 +72,9 @@ diubah pemiliknya. Anggota bisa keluar kapan saja lewat panel dompet.
 > jalan** sebelum fitur ini ada, jalankan `supabase/dompet-bersama.sql` di
 > SQL Editor sekali. Instalasi baru sudah otomatis lengkap dari
 > `supabase/schema.sql`.
+
+> **Transaksi cepat, Langganan, Kunci PIN** juga butuh tabel/kolom baru —
+> untuk database lama jalankan `supabase/fitur-lanjutan.sql` sekali.
 
 ---
 

@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { Judul, Kartu, Memuat, Kosong, Panel, Label, Bilah } from "@/components/ui";
+import InputUang from "@/components/InputUang";
+import { hitungJumlah } from "@/lib/hitung";
 import {
   uang, uangRingkas, periodeSekarang, labelPeriode, geserPeriode, rentangPeriode,
 } from "@/lib/format";
@@ -28,7 +30,7 @@ export default function Anggaran() {
   useEffect(() => { muat(); }, [muat]);
 
   async function simpan() {
-    const jumlah = Number(String(nilai).replace(/\D/g, ""));
+    const jumlah = hitungJumlah(nilai);
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -141,14 +143,7 @@ export default function Anggaran() {
       <Panel buka={!!edit} tutup={() => setEdit(null)} judul={`Anggaran ${edit?.nama || ""}`}>
         <div className="space-y-4">
           <Label teks={`Batas untuk ${labelPeriode(periode)}`}>
-            <div className="flex items-center border-2 border-line bg-raised">
-              <span className="px-3 text-muted num">Rp</span>
-              <input inputMode="numeric" autoFocus
-                className="w-full bg-transparent px-1 py-3 text-2xl num outline-none"
-                value={nilai ? Number(nilai).toLocaleString("id-ID") : ""}
-                onChange={(e) => setNilai(e.target.value.replace(/\D/g, ""))}
-                placeholder="0" />
-            </div>
+            <InputUang nilai={nilai} ubah={setNilai} autoFocus />
           </Label>
           <p className="text-xs text-muted">Kosongkan lalu simpan untuk menghapus anggaran ini.</p>
           <button className="btn-utama w-full" onClick={simpan}>Simpan</button>

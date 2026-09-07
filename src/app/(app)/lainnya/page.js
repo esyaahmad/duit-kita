@@ -6,10 +6,12 @@ import { Judul } from "@/components/ui";
 
 const menu = [
   { href: "/laporan", ikon: "📊", judul: "Laporan", ket: "Grafik pengeluaran dan tren enam bulan" },
+  { href: "/langganan", ikon: "🔁", judul: "Langganan", ket: "Tagihan & transaksi berulang" },
+  { href: "/cepat", ikon: "⚡", judul: "Transaksi cepat", ket: "Tombol satu-ketuk di Beranda" },
   { href: "/dompet", ikon: "👛", judul: "Dompet", ket: "Tunai, rekening, e-wallet" },
   { href: "/kategori", ikon: "🏷️", judul: "Kategori", ket: "Atur pengelompokan transaksi" },
   { href: "/target", ikon: "🎯", judul: "Target tabungan", ket: "Rencana yang sedang dikumpulkan" },
-  { href: "/profil", ikon: "⚙️", judul: "Profil & tampilan", ket: "Nama, tema gelap, ekspor data" },
+  { href: "/profil", ikon: "⚙️", judul: "Profil & tampilan", ket: "Nama, tema, PIN, ekspor data" },
 ];
 
 export default function Lainnya() {

@@ -5,8 +5,10 @@ import { getSupabase } from "@/lib/supabase/client";
 import { Kartu, Memuat, Kosong, Bilah } from "@/components/ui";
 import { useSaldoTampil, SALDO_SAMAR } from "@/lib/saldo";
 import Ikon from "@/components/Ikon";
+import { prosesBerulang, catatBerulang, lewatiBerulang } from "@/lib/prosesBerulang";
+import { waktuLalu } from "@/lib/waktu";
 import {
-  uang, uangRingkas, periodeSekarang, labelPeriode, geserPeriode,
+  uang, uangRingkas, hariIni, periodeSekarang, labelPeriode, geserPeriode,
   rentangPeriode, tanggalPendek, warnaTipe, tandaTipe,
 } from "@/lib/format";
 
@@ -17,6 +19,8 @@ export default function Dashboard() {
   const [nama, setNama] = useState("");
   const [me, setMe] = useState(null);
   const [pencatat, setPencatat] = useState({});
+  const [pending, setPending] = useState([]);
+  const [toast, setToast] = useState(null);
   const [saldoTampil, ubahSaldo] = useSaldoTampil();
 
   const muat = useCallback(async () => {
@@ -25,19 +29,49 @@ export default function Dashboard() {
     const { data: { user } } = await supabase.auth.getUser();
     setMe(user.id);
 
-    const [saldo, trx, kat, anggaran, target, profil] = await Promise.all([
+    // langganan otomatis dicatat dulu supaya ikut terhitung di bawah
+    let perlu = [];
+    try { perlu = await prosesBerulang(); } catch (e) {}
+    setPending(perlu);
+
+    const [saldo, trx, kat, anggaran, target, profil, cepat, anggota] = await Promise.all([
       supabase.from("wallet_balances").select("*").order("urutan"),
       supabase.from("transactions").select("*").gte("tanggal", awal).lte("tanggal", akhir).order("tanggal", { ascending: false }),
       supabase.from("categories").select("*"),
       supabase.from("budgets").select("*").eq("periode", periode),
       supabase.from("goals").select("*").order("created_at"),
       supabase.from("profiles").select("nama").eq("id", user.id).maybeSingle(),
+      supabase.from("quick_txns").select("*").order("urutan").order("created_at"),
+      supabase.from("wallet_members").select("wallet_id,user_id"),
     ]);
 
+    const wallets = saldo.data || [];
+    const members = anggota.data || [];
+
+    // dompet bersama: yang kuikuti + yang kumiliki dan punya anggota lain
+    const idKuikuti = new Set(members.filter((m) => m.user_id === user.id).map((m) => m.wallet_id));
+    const adaAnggota = new Set(members.map((m) => m.wallet_id));
+    const dompetBersama = new Set(
+      wallets.filter((w) => idKuikuti.has(w.id) || (w.user_id === user.id && adaAnggota.has(w.id))).map((w) => w.id)
+    );
+
+    let aktivitas = [];
+    if (dompetBersama.size) {
+      const { data: akt } = await supabase
+        .from("transactions").select("*")
+        .in("wallet_id", [...dompetBersama])
+        .neq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      aktivitas = akt || [];
+    }
+
     const trxData = trx.data || [];
-    const lainIds = [...new Set(trxData.map((t) => t.user_id).filter((id) => id && id !== user.id))];
-    if (lainIds.length) {
-      const { data: p } = await supabase.from("profiles").select("id,nama").in("id", lainIds);
+    const orangIds = [...new Set(
+      [...trxData, ...aktivitas].map((t) => t.user_id).filter((id) => id && id !== user.id)
+    )];
+    if (orangIds.length) {
+      const { data: p } = await supabase.from("profiles").select("id,nama").in("id", orangIds);
       const peta = {};
       (p || []).forEach((x) => { peta[x.id] = x.nama || "Anggota"; });
       setPencatat(peta);
@@ -47,15 +81,42 @@ export default function Dashboard() {
 
     setNama(profil.data?.nama || "");
     setData({
-      dompet: saldo.data || [],
-      transaksi: trx.data || [],
+      dompet: wallets,
+      transaksi: trxData,
       kategori: kat.data || [],
       anggaran: anggaran.data || [],
       target: target.data || [],
+      cepat: cepat.data || [],
+      aktivitas,
     });
   }, [periode, supabase]);
 
   useEffect(() => { muat(); }, [muat]);
+
+  const pesan = (t) => { setToast(t); setTimeout(() => setToast(null), 2200); };
+
+  async function catatCepat(q) {
+    const { data: { user } } = await supabase.auth.getUser();
+    let wid = q.wallet_id;
+    if (!wid) {
+      const { data: w } = await supabase.from("wallets").select("id").order("urutan").limit(1);
+      wid = w?.[0]?.id;
+    }
+    if (!wid) return pesan("Belum ada dompet");
+    await supabase.from("transactions").insert({
+      user_id: user.id, tipe: q.tipe, jumlah: q.jumlah, tanggal: hariIni(),
+      catatan: q.catatan || q.label, wallet_id: wid, category_id: q.category_id,
+    });
+    pesan(`✓ ${q.label} dicatat`);
+    muat();
+  }
+
+  async function konfirmasi(item, aksi) {
+    if (aksi === "catat") await catatBerulang(item.rec, item.tanggal);
+    else await lewatiBerulang(item.rec, item.tanggal);
+    setPending((p) => p.filter((x) => !(x.rec.id === item.rec.id && x.tanggal === item.tanggal)));
+    if (aksi === "catat") muat();
+  }
 
   if (!data) return <Memuat jumlah={4} tinggi={90} />;
 
@@ -63,6 +124,7 @@ export default function Dashboard() {
   const masuk = jumlahkan(data.transaksi, "income");
   const keluar = jumlahkan(data.transaksi, "expense");
   const petaKategori = Object.fromEntries(data.kategori.map((k) => [k.id, k]));
+  const petaDompet = Object.fromEntries(data.dompet.map((d) => [d.id, d]));
 
   const anggaranTampil = data.anggaran
     .map((a) => {
@@ -88,10 +150,7 @@ export default function Dashboard() {
       </div>
 
       {/* Saldo — elemen utama halaman */}
-      <div
-        className="frame p-5"
-        style={{ background: "var(--teal)", color: "var(--paper)" }}
-      >
+      <div className="frame p-5" style={{ background: "var(--teal)", color: "var(--paper)" }}>
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm opacity-80">Total saldo semua dompet</p>
           <button
@@ -119,6 +178,50 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Transaksi cepat */}
+      {data.cepat.length > 0 && (
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+          {data.cepat.map((q) => (
+            <button key={q.id} onClick={() => catatCepat(q)}
+              className="chip shrink-0 whitespace-nowrap">
+              <span>{petaKategori[q.category_id]?.ikon || (q.tipe === "income" ? "➕" : "⚡")}</span>
+              {q.label} · {uangRingkas(q.jumlah)}
+            </button>
+          ))}
+          <Link href="/cepat" className="chip shrink-0 whitespace-nowrap">Atur ⚙</Link>
+        </div>
+      )}
+
+      {toast && (
+        <div className="frame-flat px-3 py-2 text-sm">{toast}</div>
+      )}
+
+      {/* Langganan jatuh tempo */}
+      {pending.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">Langganan jatuh tempo</h2>
+          <div className="space-y-2">
+            {pending.map((item) => (
+              <Kartu key={`${item.rec.id}-${item.tanggal}`} datar className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{item.rec.nama}</p>
+                    <p className="text-xs text-muted num">{tanggalPendek(item.tanggal)}</p>
+                  </div>
+                  <span className="num font-medium" style={{ color: warnaTipe(item.rec.tipe) }}>
+                    {tandaTipe(item.rec.tipe)}{uang(item.rec.jumlah)}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn-utama flex-1 py-1.5 text-sm" onClick={() => konfirmasi(item, "catat")}>Catat</button>
+                  <button className="btn py-1.5 text-sm" onClick={() => konfirmasi(item, "lewati")}>Lewati</button>
+                </div>
+              </Kartu>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="flex items-center justify-between">
         <button onClick={() => setPeriode(geserPeriode(periode, -1))} className="chip">Sebelumnya</button>
@@ -149,6 +252,36 @@ export default function Dashboard() {
           )}
         </div>
       </section>
+
+      {/* Aktivitas dompet bersama */}
+      {data.aktivitas.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-semibold">Aktivitas keluarga</h2>
+          <div className="space-y-2">
+            {data.aktivitas.map((t) => {
+              const k = petaKategori[t.category_id];
+              return (
+                <div key={t.id} className="frame-flat flex items-center gap-3 p-3">
+                  <span className="text-lg">{t.tipe === "transfer" ? "🔁" : k?.ikon || "💸"}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm">
+                      <span className="font-medium">{pencatat[t.user_id] || "Anggota"}</span>{" "}
+                      {t.tipe === "income" ? "terima" : "catat"} {t.catatan || k?.nama || "transaksi"}
+                    </p>
+                    <p className="truncate text-xs text-muted">
+                      {waktuLalu(t.created_at)}
+                      {petaDompet[t.wallet_id] ? ` · ${petaDompet[t.wallet_id].nama}` : ""}
+                    </p>
+                  </div>
+                  <span className="num text-sm font-medium" style={{ color: warnaTipe(t.tipe) }}>
+                    {tandaTipe(t.tipe)}{uangRingkas(t.jumlah)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {anggaranTampil.length > 0 && (
         <section>

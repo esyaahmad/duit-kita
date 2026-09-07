@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
 import { Judul, Kartu, Label, Memuat } from "@/components/ui";
 import PemilihTema from "@/components/PemilihTema";
+import AturPin from "@/components/AturPin";
 
 export default function Profil() {
   const supabase = getSupabase();
@@ -86,6 +87,8 @@ export default function Profil() {
         </div>
         <PemilihTema />
       </Kartu>
+
+      <AturPin />
 
       <Kartu className="space-y-3">
         <div>

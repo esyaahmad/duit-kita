@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { Judul, Kartu, Memuat, Kosong, Panel, Label, Bilah } from "@/components/ui";
+import InputUang from "@/components/InputUang";
+import { hitungJumlah } from "@/lib/hitung";
 import { uang, uangRingkas } from "@/lib/format";
 
 const kosongForm = { nama: "", target: "", terkumpul: "", target_tanggal: "", ikon: "🎯" };
@@ -49,7 +51,7 @@ export default function Target() {
   }
 
   async function setor() {
-    const n = Number(String(nominal).replace(/\D/g, ""));
+    const n = hitungJumlah(nominal);
     if (!n) return;
     await supabase.from("goals")
       .update({ terkumpul: Number(tambahDana.terkumpul) + n })
@@ -153,13 +155,7 @@ export default function Target() {
       <Panel buka={!!tambahDana} tutup={() => setTambahDana(null)} judul={`Setor ke ${tambahDana?.nama || ""}`}>
         <div className="space-y-4">
           <Label teks="Nominal setoran">
-            <div className="flex items-center border-2 border-line bg-raised">
-              <span className="px-3 text-muted num">Rp</span>
-              <input inputMode="numeric" autoFocus
-                className="w-full bg-transparent px-1 py-3 text-2xl num outline-none"
-                value={nominal ? Number(nominal).toLocaleString("id-ID") : ""}
-                onChange={(e) => setNominal(e.target.value.replace(/\D/g, ""))} placeholder="0" />
-            </div>
+            <InputUang nilai={nominal} ubah={setNominal} autoFocus />
           </Label>
           <p className="text-xs text-muted num">
             Terkumpul sekarang {uangRingkas(tambahDana?.terkumpul || 0)}
