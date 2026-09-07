@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
 import { Judul, Kartu, Label, Memuat } from "@/components/ui";
+import PemilihTema from "@/components/PemilihTema";
 
 export default function Profil() {
   const supabase = getSupabase();
@@ -10,11 +11,9 @@ export default function Profil() {
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [siap, setSiap] = useState(false);
-  const [gelap, setGelap] = useState(false);
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    setGelap(document.documentElement.classList.contains("dark"));
     (async () => {
       const {
         data: { user },
@@ -25,12 +24,6 @@ export default function Profil() {
       setSiap(true);
     })();
   }, [supabase]);
-
-  function ubahTema(aktif) {
-    setGelap(aktif);
-    document.documentElement.classList.toggle("dark", aktif);
-    localStorage.setItem("tema", aktif ? "gelap" : "terang");
-  }
 
   async function simpanNama() {
     const {
@@ -86,21 +79,12 @@ export default function Profil() {
         {status && <p className="text-sm text-muted">{status}</p>}
       </Kartu>
 
-      <Kartu className="flex items-center justify-between">
+      <Kartu className="space-y-3">
         <div>
-          <p className="font-medium">Tema gelap</p>
-          <p className="text-xs text-muted">Enak dipakai malam hari</p>
+          <p className="font-medium">Tema tampilan</p>
+          <p className="text-xs text-muted">Ganti gaya warna seluruh aplikasi. Tersimpan di perangkat ini.</p>
         </div>
-        <button
-          onClick={() => ubahTema(!gelap)}
-          role="switch"
-          aria-checked={gelap}
-          className="h-9 w-16 border-2 border-line press"
-          style={{ background: gelap ? "var(--teal)" : "var(--raised)" }}
-        >
-          <span className="block h-6 w-6 border-2 border-line bg-paper transition-transform"
-            style={{ transform: gelap ? "translateX(30px)" : "translateX(2px)" }} />
-        </button>
+        <PemilihTema />
       </Kartu>
 
       <Kartu className="space-y-3">

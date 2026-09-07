@@ -14,9 +14,10 @@ Next.js 14 (App Router) + Supabase, gratis di-hosting di Vercel.
 | Dompet | Tunai, bank, e-wallet, kartu, investasi — saldo dihitung otomatis |
 | Kategori | Kategori pemasukan & pengeluaran dengan ikon |
 | Target | Target tabungan dengan setoran bertahap |
-| Profil | Nama, tema gelap, ekspor CSV, keluar |
+| Profil | Nama, pemilih tema, ekspor CSV, keluar |
 
-Fitur lain: pencatatan pindah dana antar dompet, tema terang/gelap, PWA
+Fitur lain: pencatatan pindah dana antar dompet, 6 tema tampilan
+(Kertas, Malam, Futuristik, Go Green, Senja, Samudra) lewat Profil, PWA
 (bisa dipasang ke home screen), dan Row Level Security sehingga data tiap
 akun terisolasi di database.
 
@@ -143,5 +144,6 @@ supabase/schema.sql  seluruh skema database
 ## Menyesuaikan tampilan
 
 Semua warna ada sebagai CSS variable di bagian atas `src/app/globals.css`
-(`--paper`, `--ink`, `--teal`, `--mustard`, `--brick`). Ganti nilainya dan
-seluruh aplikasi ikut berubah, termasuk mode gelap.
+(`--paper`, `--ink`, `--teal`, `--mustard`, `--brick`, …). Tiap tema hanya
+menimpa variabel itu di blok `:root[data-tema="…"]`. Untuk menambah tema:
+tambahkan satu blok di `globals.css` dan satu entri di `src/lib/tema.js`.

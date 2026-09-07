@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- TEMA ----------
+   Tiap tema hanya menukar variabel di bawah ini. Ganti lewat
+   <html data-tema="..."> (lihat src/lib/tema.js). :root = tema "Kertas".
+   Tema terang mewarisi --bg-image dari :root; tema lain menimpanya.        */
+
 :root {
   --paper: #ede7d9;
   --surface: #f7f3e8;
@@ -13,9 +18,16 @@
   --mustard: #d9a21b;
   --brick: #b5462b;
   --shadow: rgba(32, 29, 26, 1);
+  /* garis-garis halus seperti kertas buku kas */
+  --bg-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 27px,
+    color-mix(in srgb, var(--line) 6%, transparent) 27px 28px
+  );
 }
 
-html.dark {
+/* Malam — gelap hangat */
+:root[data-tema="malam"] {
   --paper: #171613;
   --surface: #201e19;
   --raised: #2a2721;
@@ -28,20 +40,83 @@ html.dark {
   --shadow: rgba(0, 0, 0, 0.85);
 }
 
+/* Futuristik — latar navy nyaris hitam, aksen neon, pola grid */
+:root[data-tema="futuristik"] {
+  --paper: #080b14;
+  --surface: #0e1424;
+  --raised: #151d33;
+  --ink: #e6f0ff;
+  --muted: #7d8bb0;
+  --line: #2b3a63;
+  --teal: #22d3ee;
+  --mustard: #a855f7;
+  --brick: #fb2f6b;
+  --shadow: rgba(34, 211, 238, 0.3);
+  --bg-image:
+    linear-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
+  --bg-size: 34px 34px, 34px 34px;
+}
+
+/* Go Green — segar & alami, garis tepi hijau hutan */
+:root[data-tema="hijau"] {
+  --paper: #eef4e8;
+  --surface: #f6faf0;
+  --raised: #ffffff;
+  --ink: #1b2e1a;
+  --muted: #5c6f52;
+  --line: #2f5d2f;
+  --teal: #2f9e44;
+  --mustard: #f08c00;
+  --brick: #c92a2a;
+  --shadow: rgba(27, 46, 26, 0.9);
+}
+
+/* Senja — plum gelap dengan semburat jingga di atas */
+:root[data-tema="senja"] {
+  --paper: #1a1327;
+  --surface: #241a35;
+  --raised: #2f2246;
+  --ink: #f7ecff;
+  --muted: #a892c4;
+  --line: #4a3768;
+  --teal: #c084fc;
+  --mustard: #fb923c;
+  --brick: #fb7185;
+  --shadow: rgba(0, 0, 0, 0.6);
+  --bg-image:
+    radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--mustard) 26%, transparent), transparent 70%),
+    repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, var(--line) 22%, transparent) 27px 28px);
+  --bg-size: 100% 100%, auto;
+  --bg-repeat: no-repeat, repeat;
+}
+
+/* Samudra — biru tenang */
+:root[data-tema="samudra"] {
+  --paper: #e7f1f5;
+  --surface: #f2f8fb;
+  --raised: #ffffff;
+  --ink: #0b2b3a;
+  --muted: #4d6b78;
+  --line: #12556b;
+  --teal: #0c8599;
+  --mustard: #4dabf7;
+  --brick: #e8590c;
+  --shadow: rgba(11, 43, 58, 0.85);
+}
+
 html {
   background: var(--paper);
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--paper);
+  background-color: var(--paper);
   color: var(--ink);
-  /* garis-garis halus seperti kertas buku kas */
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0 27px,
-    color-mix(in srgb, var(--line) 6%, transparent) 27px 28px
-  );
+  background-image: var(--bg-image);
+  background-size: var(--bg-size, auto);
+  background-position: var(--bg-pos, top left);
+  background-repeat: var(--bg-repeat, repeat);
   overscroll-behavior-y: none;
 }
 
