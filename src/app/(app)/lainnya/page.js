@@ -12,6 +12,7 @@ const menu = [
   { href: "/kategori", ikon: "🏷️", judul: "Kategori", ket: "Atur pengelompokan transaksi" },
   { href: "/target", ikon: "🎯", judul: "Target tabungan", ket: "Rencana yang sedang dikumpulkan" },
   { href: "/profil", ikon: "⚙️", judul: "Profil & tampilan", ket: "Nama, tema, PIN, ekspor data" },
+  { href: "/bantuan", ikon: "❓", judul: "Bantuan", ket: "Semua fitur dan cara pakainya" },
 ];
 
 export default function Lainnya() {
