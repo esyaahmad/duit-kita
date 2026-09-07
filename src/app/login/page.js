@@ -53,7 +53,7 @@ export default function Login() {
       <div className="mb-8">
         <div
           className="mb-5 inline-block border-2 border-line px-3 py-1 text-sm num"
-          style={{ background: "var(--mustard)", color: "#201d1a" }}
+          style={{ background: "var(--mustard)", color: "var(--on-accent)" }}
         >
           buku kas pribadi
         </div>

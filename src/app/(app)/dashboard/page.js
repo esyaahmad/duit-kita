@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getSupabase } from "@/lib/supabase/client";
 import { Kartu, Memuat, Kosong, Bilah } from "@/components/ui";
 import { useSaldoTampil, SALDO_SAMAR } from "@/lib/saldo";
+import Ikon from "@/components/Ikon";
 import {
   uang, uangRingkas, periodeSekarang, labelPeriode, geserPeriode,
   rentangPeriode, tanggalPendek, warnaTipe, tandaTipe,
@@ -88,8 +89,8 @@ export default function Dashboard() {
 
       {/* Saldo — elemen utama halaman */}
       <div
-        className="border-2 border-line p-5"
-        style={{ background: "var(--teal)", color: "var(--paper)", boxShadow: "4px 4px 0 var(--shadow)" }}
+        className="frame p-5"
+        style={{ background: "var(--teal)", color: "var(--paper)" }}
       >
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm opacity-80">Total saldo semua dompet</p>
@@ -97,9 +98,10 @@ export default function Dashboard() {
             type="button"
             onClick={() => ubahSaldo()}
             aria-label={saldoTampil ? "Sembunyikan saldo" : "Tampilkan saldo"}
-            className="border-2 px-2 py-0.5 text-xs press"
+            className="press inline-flex items-center gap-1 border-2 px-2 py-0.5 text-xs"
             style={{ borderColor: "rgba(255,255,255,.45)" }}
           >
+            <Ikon nama={saldoTampil ? "mata-tutup" : "mata"} size="1em" />
             {saldoTampil ? "Sembunyikan" : "Lihat"}
           </button>
         </div>

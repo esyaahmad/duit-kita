@@ -85,8 +85,8 @@ export default function Anggaran() {
         <button onClick={() => setPeriode(geserPeriode(periode, 1))} className="chip">Berikutnya</button>
       </div>
 
-      <div className="mb-6 border-2 border-line p-5"
-        style={{ background: sisa < 0 ? "var(--brick)" : "var(--surface)", color: sisa < 0 ? "var(--paper)" : "var(--ink)", boxShadow: "4px 4px 0 var(--shadow)" }}>
+      <div className="frame mb-6 p-5"
+        style={{ background: sisa < 0 ? "var(--brick)" : "var(--surface)", color: sisa < 0 ? "var(--paper)" : "var(--ink)" }}>
         <p className="text-sm opacity-80">{sisa < 0 ? "Melebihi anggaran" : "Sisa anggaran bulan ini"}</p>
         <p className="mt-1 text-4xl font-semibold num">{uang(Math.abs(sisa))}</p>
         <p className="mt-2 text-sm opacity-80 num">

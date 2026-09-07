@@ -141,9 +141,28 @@ src/
 supabase/schema.sql  seluruh skema database
 ```
 
-## Menyesuaikan tampilan
+## Tema & tampilan
 
-Semua warna ada sebagai CSS variable di bagian atas `src/app/globals.css`
-(`--paper`, `--ink`, `--teal`, `--mustard`, `--brick`, …). Tiap tema hanya
-menimpa variabel itu di blok `:root[data-tema="…"]`. Untuk menambah tema:
-tambahkan satu blok di `globals.css` dan satu entri di `src/lib/tema.js`.
+Setiap tema di `src/app/globals.css` menimpa satu blok `:root[data-tema="…"]`
+yang berisi **bukan cuma warna**, tapi juga token bentuk & rasa:
+
+| Token | Contoh isi |
+|---|---|
+| `--paper … --brick`, `--on-accent` | palet warna |
+| `--radius`, `--bw` | sudut membulat, tebal garis tepi |
+| `--sx/--sy/--sblur/--sspread` | bayangan (blok keras vs blur lembut vs glow) |
+| `--press` | jarak geser saat tombol ditekan |
+| `--font-ui`, `--font-display`, `--font-num` | font antarmuka, judul, angka |
+| `--display-transform`, `--display-spacing` | HURUF BESAR / spasi judul |
+| `--ikon-w` | tebal garis ikon SVG (`src/components/Ikon.js`) |
+| `--bg-image/-size/-repeat` | pola latar (grid, dedaunan, semburat) |
+
+Komponen (`.frame`, `.btn`, `.chip`, `.field`, `.nav-*`, `.fab`, `.panel-sheet`)
+memakai token itu, ditambah aturan `:root[data-tema="x"] .frame { … }` untuk
+sentuhan khusus (garis aksen neon, garis pindai, kartu membulat, dll).
+
+Menambah tema: satu blok di `globals.css` + satu entri di `src/lib/tema.js`
+(plus warna bilah status di `META_WARNA` dan skrip pra-paint di `layout.js`).
+
+Pratinjau cepat tanpa mengubah setelan: buka mana saja dengan `?tema=futuristik`
+(atau `hijau`, `senja`, `samudra`, `malam`, `kertas`).

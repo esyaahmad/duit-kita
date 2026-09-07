@@ -70,7 +70,7 @@ export function Panel({ buka, tutup, judul, children }) {
         onClick={tutup}
         className="absolute inset-0 bg-black/45"
       />
-      <div className="relative max-h-[92vh] w-full overflow-y-auto border-2 border-line bg-surface p-5 sm:max-w-md">
+      <div className="panel-sheet relative max-h-[92vh] w-full overflow-y-auto p-5 sm:max-w-md">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{judul}</h2>
           <button onClick={tutup} className="chip" type="button">

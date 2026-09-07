@@ -3,17 +3,17 @@
 // swatch = [latar, primer, sekunder, bahaya] — dipakai untuk pratinjau.
 
 export const TEMA = [
-  { id: "kertas",     nama: "Kertas",     sub: "Retro terang",     terang: true,
+  { id: "kertas",     nama: "Kertas",     sub: "Retro, sudut tajam",       terang: true,
     swatch: ["#ede7d9", "#0f6e63", "#d9a21b", "#b5462b"] },
-  { id: "malam",      nama: "Malam",      sub: "Gelap hangat",     terang: false,
+  { id: "malam",      nama: "Malam",      sub: "Retro gelap",              terang: false,
     swatch: ["#201e19", "#46b9a8", "#e7bc5c", "#de7b58"] },
-  { id: "futuristik", nama: "Futuristik", sub: "Neon & grid",      terang: false,
-    swatch: ["#0e1424", "#22d3ee", "#a855f7", "#fb2f6b"] },
-  { id: "hijau",      nama: "Go Green",   sub: "Segar & alami",    terang: true,
-    swatch: ["#eef4e8", "#2f9e44", "#f08c00", "#c92a2a"] },
-  { id: "senja",      nama: "Senja",      sub: "Ungu & jingga",    terang: false,
+  { id: "futuristik", nama: "Futuristik", sub: "HUD, grid, neon, huruf tegak", terang: false,
+    swatch: ["#0d1322", "#26e0f2", "#b667ff", "#ff3d78"] },
+  { id: "hijau",      nama: "Go Green",   sub: "Membulat, lembut, dedaunan", terang: true,
+    swatch: ["#e9f2e0", "#2f9e44", "#f08c00", "#c0392b"] },
+  { id: "senja",      nama: "Senja",      sub: "Plum, judul serif",        terang: false,
     swatch: ["#241a35", "#c084fc", "#fb923c", "#fb7185"] },
-  { id: "samudra",    nama: "Samudra",    sub: "Biru tenang",      terang: true,
+  { id: "samudra",    nama: "Samudra",    sub: "Biru tenang, membulat",    terang: true,
     swatch: ["#e7f1f5", "#0c8599", "#4dabf7", "#e8590c"] },
 ];
 
@@ -21,8 +21,8 @@ export const TEMA_DEFAULT = "kertas";
 
 // Warna bilah status browser / PWA per tema (samakan dengan --paper di globals.css).
 export const META_WARNA = {
-  kertas: "#ede7d9", malam: "#171613", futuristik: "#080b14",
-  hijau: "#eef4e8", senja: "#1a1327", samudra: "#e7f1f5",
+  kertas: "#ede7d9", malam: "#171613", futuristik: "#070a12",
+  hijau: "#e9f2e0", senja: "#1a1327", samudra: "#e7f1f5",
 };
 
 const VALID = new Set(TEMA.map((t) => t.id));

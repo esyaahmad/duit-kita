@@ -2,12 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------- TEMA ----------
-   Tiap tema hanya menukar variabel di bawah ini. Ganti lewat
-   <html data-tema="..."> (lihat src/lib/tema.js). :root = tema "Kertas".
-   Tema terang mewarisi --bg-image dari :root; tema lain menimpanya.        */
+/* ============================================================
+   TEMA
+   Ganti lewat <html data-tema="..."> (lihat src/lib/tema.js).
+   Tiap tema menimpa: palet warna + token bentuk (radius, border,
+   bayangan), font, pola latar, dan gaya komponen tertentu.
+   :root = tema "Kertas" (retro buku kas).
+   ============================================================ */
 
 :root {
+  /* -- palet -- */
   --paper: #ede7d9;
   --surface: #f7f3e8;
   --raised: #fffdf6;
@@ -18,7 +22,23 @@
   --mustard: #d9a21b;
   --brick: #b5462b;
   --shadow: rgba(32, 29, 26, 1);
-  /* garis-garis halus seperti kertas buku kas */
+  --on-accent: #201d1a;      /* teks di atas --mustard (FAB, badge) */
+
+  /* -- token bentuk -- */
+  --radius: 0px;
+  --bw: 2px;                 /* tebal garis tepi */
+  --sx: 3px; --sy: 3px; --sblur: 0px; --sspread: 0px;   /* bayangan blok */
+  --press: 3px;              /* geser saat ditekan */
+  --ikon-w: 2;               /* tebal garis ikon SVG */
+
+  /* -- tipografi -- */
+  --font-ui: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-num: var(--font-mono), ui-monospace, monospace;
+  --display-transform: none;
+  --display-spacing: -0.01em;
+
+  /* -- latar -- */
   --bg-image: repeating-linear-gradient(
     to bottom,
     transparent 0 27px,
@@ -26,7 +46,7 @@
   );
 }
 
-/* Malam — gelap hangat */
+/* ---------- MALAM — retro gelap ---------- */
 :root[data-tema="malam"] {
   --paper: #171613;
   --surface: #201e19;
@@ -38,41 +58,75 @@
   --mustard: #e7bc5c;
   --brick: #de7b58;
   --shadow: rgba(0, 0, 0, 0.85);
+  --on-accent: #201d1a;
 }
 
-/* Futuristik — latar navy nyaris hitam, aksen neon, pola grid */
+/* ---------- FUTURISTIK — HUD, grid, neon, huruf tegak ---------- */
 :root[data-tema="futuristik"] {
-  --paper: #080b14;
-  --surface: #0e1424;
-  --raised: #151d33;
-  --ink: #e6f0ff;
-  --muted: #7d8bb0;
-  --line: #2b3a63;
-  --teal: #22d3ee;
-  --mustard: #a855f7;
-  --brick: #fb2f6b;
-  --shadow: rgba(34, 211, 238, 0.3);
+  --paper: #070a12;
+  --surface: #0d1322;
+  --raised: #131c31;
+  --ink: #e7f1ff;
+  --muted: #7f8db3;
+  --line: #274063;
+  --teal: #26e0f2;
+  --mustard: #b667ff;
+  --brick: #ff3d78;
+  --shadow: rgba(38, 224, 242, 0.28);
+  --on-accent: #f4f0ff;
+
+  --radius: 0px;
+  --bw: 1px;
+  --sx: 0px; --sy: 0px; --sblur: 22px; --sspread: -6px;
+  --press: 1px;
+  --ikon-w: 1.6;
+
+  --font-ui: var(--font-rajdhani), var(--font-sans), sans-serif;
+  --font-display: var(--font-rajdhani), var(--font-sans), sans-serif;
+  --display-transform: uppercase;
+  --display-spacing: 0.09em;
+
   --bg-image:
-    linear-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px);
-  --bg-size: 34px 34px, 34px 34px;
+    radial-gradient(135% 55% at 50% -12%, color-mix(in srgb, var(--teal) 15%, transparent), transparent 55%),
+    linear-gradient(color-mix(in srgb, var(--line) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 60%, transparent) 1px, transparent 1px);
+  --bg-size: 100% 100%, 34px 34px, 34px 34px;
+  --bg-repeat: no-repeat, repeat, repeat;
 }
 
-/* Go Green — segar & alami, garis tepi hijau hutan */
+/* ---------- GO GREEN — lembut, membulat, dedaunan ---------- */
 :root[data-tema="hijau"] {
-  --paper: #eef4e8;
+  --paper: #e9f2e0;
   --surface: #f6faf0;
   --raised: #ffffff;
   --ink: #1b2e1a;
   --muted: #5c6f52;
-  --line: #2f5d2f;
+  --line: #c3d8b4;
   --teal: #2f9e44;
   --mustard: #f08c00;
-  --brick: #c92a2a;
-  --shadow: rgba(27, 46, 26, 0.9);
+  --brick: #c0392b;
+  --shadow: rgba(27, 46, 26, 0.22);
+  --on-accent: #21330f;
+
+  --radius: 18px;
+  --bw: 1.5px;
+  --sx: 0px; --sy: 12px; --sblur: 28px; --sspread: -16px;
+  --press: 0px;
+  --ikon-w: 2.4;
+
+  --font-ui: var(--font-nunito), var(--font-sans), sans-serif;
+  --font-display: var(--font-nunito), var(--font-sans), sans-serif;
+  --display-transform: none;
+  --display-spacing: -0.02em;
+
+  --bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='168' height='168' viewBox='0 0 168 168'%3E%3Cg fill='%232f9e44' fill-opacity='0.08'%3E%3Cpath d='M36 24c-16 9-20 34-8 50 16-8 22-34 8-50z'/%3E%3Cpath d='M132 78c16 9 20 34 8 50-16-8-22-34-8-50z'/%3E%3Cpath d='M76 126c-12 13-10 35 2 46 12-11 14-33-2-46z'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(120% 50% at 50% 0%, color-mix(in srgb, var(--teal) 12%, transparent), transparent 60%);
+  --bg-size: 168px 168px, 100% 100%;
+  --bg-repeat: repeat, no-repeat;
 }
 
-/* Senja — plum gelap dengan semburat jingga di atas */
+/* ---------- SENJA — plum, judul serif, semburat jingga ---------- */
 :root[data-tema="senja"] {
   --paper: #1a1327;
   --surface: #241a35;
@@ -83,27 +137,58 @@
   --teal: #c084fc;
   --mustard: #fb923c;
   --brick: #fb7185;
-  --shadow: rgba(0, 0, 0, 0.6);
+  --shadow: rgba(0, 0, 0, 0.55);
+  --on-accent: #241a35;
+
+  --radius: 12px;
+  --bw: 1.5px;
+  --sx: 0px; --sy: 10px; --sblur: 26px; --sspread: -14px;
+  --press: 1px;
+  --ikon-w: 1.9;
+
+  --font-display: var(--font-serif), Georgia, serif;
+  --display-transform: none;
+  --display-spacing: 0em;
+
   --bg-image:
-    radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--mustard) 26%, transparent), transparent 70%),
+    radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--mustard) 28%, transparent), transparent 68%),
     repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, var(--line) 22%, transparent) 27px 28px);
   --bg-size: 100% 100%, auto;
   --bg-repeat: no-repeat, repeat;
 }
 
-/* Samudra — biru tenang */
+/* ---------- SAMUDRA — biru tenang, membulat, cahaya dari dasar ---------- */
 :root[data-tema="samudra"] {
   --paper: #e7f1f5;
   --surface: #f2f8fb;
   --raised: #ffffff;
   --ink: #0b2b3a;
   --muted: #4d6b78;
-  --line: #12556b;
+  --line: #b3d1dc;
   --teal: #0c8599;
   --mustard: #4dabf7;
   --brick: #e8590c;
-  --shadow: rgba(11, 43, 58, 0.85);
+  --shadow: rgba(11, 43, 58, 0.2);
+  --on-accent: #08243a;
+
+  --radius: 16px;
+  --bw: 1.5px;
+  --sx: 0px; --sy: 10px; --sblur: 24px; --sspread: -14px;
+  --press: 1px;
+  --ikon-w: 2;
+
+  --display-spacing: 0.01em;
+
+  --bg-image:
+    radial-gradient(120% 55% at 50% 100%, color-mix(in srgb, var(--teal) 14%, transparent), transparent 62%),
+    repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, var(--line) 45%, transparent) 27px 28px);
+  --bg-size: 100% 100%, auto;
+  --bg-repeat: no-repeat, repeat;
 }
+
+/* ============================================================
+   DASAR
+   ============================================================ */
 
 html {
   background: var(--paper);
@@ -111,13 +196,21 @@ html {
 }
 
 body {
-  background-color: var(--paper);
+  background-color: transparent;
   color: var(--ink);
+  font-family: var(--font-ui);
   background-image: var(--bg-image);
   background-size: var(--bg-size, auto);
   background-position: var(--bg-pos, top left);
   background-repeat: var(--bg-repeat, repeat);
+  background-attachment: var(--bg-attach, scroll);
   overscroll-behavior-y: none;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: var(--display-spacing);
+  text-transform: var(--display-transform);
 }
 
 *:focus-visible {
@@ -125,59 +218,274 @@ body {
   outline-offset: 2px;
 }
 
+::-webkit-scrollbar { width: 0; height: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ============================================================
+   KOMPONEN (memakai token di atas)
+   ============================================================ */
+
 @layer components {
-  .frame {
-    @apply border-2 border-line bg-surface;
-    box-shadow: 3px 3px 0 var(--shadow);
-  }
+  .frame,
   .frame-flat {
-    @apply border-2 border-line bg-surface;
+    background: var(--surface);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
   }
-  .press {
-    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  .frame {
+    box-shadow: var(--sx) var(--sy) var(--sblur) var(--sspread) var(--shadow);
   }
+
+  .press { transition: transform 0.08s ease, box-shadow 0.08s ease; }
   .press:active {
-    transform: translate(3px, 3px);
+    transform: translate(var(--press), var(--press));
     box-shadow: 0 0 0 var(--shadow) !important;
   }
-  .btn {
-    @apply border-2 border-line bg-surface px-4 py-2.5 font-medium press;
-    box-shadow: 3px 3px 0 var(--shadow);
+
+  .btn,
+  .btn-utama {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.625rem 1rem;
+    font-weight: 500;
+    background: var(--surface);
+    color: var(--ink);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--sx) var(--sy) var(--sblur) var(--sspread) var(--shadow);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .btn:active,
+  .btn-utama:active {
+    transform: translate(var(--press), var(--press));
+    box-shadow: 0 0 0 var(--shadow) !important;
   }
   .btn-utama {
-    @apply btn text-paper;
     background: var(--teal);
     color: var(--paper);
+    border-color: var(--line);
   }
+
   .field {
-    @apply w-full border-2 border-line bg-raised px-3 py-2.5 text-ink;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    color: var(--ink);
+    background: var(--raised);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
     outline: none;
   }
-  .field::placeholder {
-    color: var(--muted);
-  }
+  .field::placeholder { color: var(--muted); }
+
   .num {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-num);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
+
   .chip {
-    @apply border-2 border-line px-3 py-1.5 text-sm bg-surface press;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    background: var(--surface);
+    color: var(--ink);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
   }
-  .chip-aktif {
-    background: var(--ink);
-    color: var(--paper);
+  .chip:active { transform: translate(var(--press), var(--press)); }
+  .chip-aktif { background: var(--ink); color: var(--paper); }
+
+  /* panel bawah (bottom sheet) */
+  .panel-sheet {
+    background: var(--surface);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius) var(--radius) 0 0;
   }
+
+  /* navigasi bawah + tombol tambah mengambang */
+  .nav-bawah {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--surface);
+    border-top: var(--bw) solid var(--line);
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .nav-item-aktif {
+    color: var(--ink);
+    font-weight: 600;
+    background: color-mix(in srgb, var(--teal) 14%, transparent);
+  }
+  .nav-ikon { font-size: 1.25rem; line-height: 1; }
+
+  .fab {
+    position: fixed;
+    right: 1rem;
+    bottom: 88px;
+    z-index: 30;
+    display: flex;
+    height: 3.5rem;
+    width: 3.5rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--on-accent);
+    background: var(--mustard);
+    border: var(--bw) solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--sx) var(--sy) var(--sblur) var(--sspread) var(--shadow);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .fab:active { transform: translate(var(--press), var(--press)); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
+/* di layar lebar panel jadi kartu tengah — bulatkan semua sudut */
+@media (min-width: 640px) {
+  .panel-sheet { border-radius: var(--radius); }
 }
 
-::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+/* ============================================================
+   RAGAM PER TEMA — bentuk, aksen, dekorasi
+   ============================================================ */
+
+/* ---- FUTURISTIK ---- */
+:root[data-tema="futuristik"] .frame {
+  position: relative;
+  border-color: color-mix(in srgb, var(--teal) 35%, var(--line));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--teal) 12%, transparent),
+              0 10px 34px -12px var(--shadow);
 }
+:root[data-tema="futuristik"] .frame::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--teal);
+  box-shadow: 0 0 10px var(--teal);
+}
+:root[data-tema="futuristik"] .btn,
+:root[data-tema="futuristik"] .chip {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  border-color: color-mix(in srgb, var(--teal) 45%, var(--line));
+}
+:root[data-tema="futuristik"] .btn { box-shadow: 0 0 18px -6px var(--shadow); }
+:root[data-tema="futuristik"] .btn-utama {
+  border-color: var(--teal);
+  box-shadow: 0 0 22px -4px var(--teal);
+}
+:root[data-tema="futuristik"] .chip-aktif {
+  background: var(--teal);
+  color: var(--paper);
+  box-shadow: 0 0 16px -4px var(--teal);
+}
+:root[data-tema="futuristik"] .field {
+  background: color-mix(in srgb, var(--teal) 7%, var(--raised));
+  border-color: color-mix(in srgb, var(--teal) 30%, var(--line));
+}
+:root[data-tema="futuristik"] .nav-bawah {
+  border-top-color: var(--teal);
+  box-shadow: 0 -8px 26px -14px var(--shadow);
+}
+:root[data-tema="futuristik"] .nav-item { text-transform: uppercase; letter-spacing: 0.06em; }
+:root[data-tema="futuristik"] .nav-item-aktif {
+  background: color-mix(in srgb, var(--teal) 18%, transparent);
+  box-shadow: inset 0 2px 0 var(--teal);
+}
+:root[data-tema="futuristik"] .fab {
+  border-color: var(--mustard);
+  box-shadow: 0 0 24px -2px color-mix(in srgb, var(--mustard) 75%, transparent);
+}
+:root[data-tema="futuristik"] .panel-sheet {
+  border-color: color-mix(in srgb, var(--teal) 40%, var(--line));
+  box-shadow: 0 -10px 40px -10px var(--shadow);
+}
+:root[data-tema="futuristik"] h1 {
+  text-shadow: 0 0 22px color-mix(in srgb, var(--teal) 40%, transparent);
+}
+/* garis pindai halus di atas konten */
+:root[data-tema="futuristik"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 3px);
+}
+
+/* ---- GO GREEN ---- */
+:root[data-tema="hijau"] .frame {
+  border-color: color-mix(in srgb, var(--teal) 22%, transparent);
+  box-shadow: 0 16px 34px -20px var(--shadow);
+}
+:root[data-tema="hijau"] .btn,
+:root[data-tema="hijau"] .chip { border-radius: 999px; }
+:root[data-tema="hijau"] .btn { border-color: color-mix(in srgb, var(--teal) 22%, transparent); }
+:root[data-tema="hijau"] .btn-utama {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--teal), color-mix(in srgb, var(--teal) 62%, var(--mustard)));
+  box-shadow: 0 14px 26px -12px color-mix(in srgb, var(--teal) 60%, transparent);
+}
+:root[data-tema="hijau"] .chip-aktif { background: var(--teal); color: #fff; }
+:root[data-tema="hijau"] .field { border-radius: 14px; }
+:root[data-tema="hijau"] .press:active,
+:root[data-tema="hijau"] .btn:active,
+:root[data-tema="hijau"] .chip:active {
+  transform: translateY(2px) scale(0.985);
+  box-shadow: 0 4px 12px -8px var(--shadow) !important;
+}
+:root[data-tema="hijau"] .nav-bawah {
+  border-top: 0;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 28px -16px var(--shadow);
+}
+:root[data-tema="hijau"] .nav-item-aktif {
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--teal) 16%, transparent);
+}
+:root[data-tema="hijau"] .fab {
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 14px 28px -10px color-mix(in srgb, var(--mustard) 60%, transparent);
+}
+:root[data-tema="hijau"] .panel-sheet { border-radius: 26px 26px 0 0; }
+
+/* ---- SENJA ---- */
+:root[data-tema="senja"] .frame { border-color: color-mix(in srgb, var(--line) 70%, transparent); }
+:root[data-tema="senja"] .btn-utama {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--teal), var(--brick));
+  color: #241a35;
+}
+:root[data-tema="senja"] .chip-aktif { background: var(--teal); color: #241a35; }
+:root[data-tema="senja"] h1, :root[data-tema="senja"] h2 { font-weight: 600; }
+
+/* ---- SAMUDRA ---- */
+:root[data-tema="samudra"] .btn-utama {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--teal), var(--mustard));
+}
+:root[data-tema="samudra"] .chip-aktif { background: var(--teal); color: var(--paper); }
+:root[data-tema="samudra"] .nav-bawah { border-radius: 18px 18px 0 0; }
+:root[data-tema="samudra"] .panel-sheet { border-radius: 20px 20px 0 0; }
