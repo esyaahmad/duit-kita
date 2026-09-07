@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase/client";
 import { Kartu, Memuat, Kosong, Bilah } from "@/components/ui";
+import { useSaldoTampil, SALDO_SAMAR } from "@/lib/saldo";
 import {
   uang, uangRingkas, periodeSekarang, labelPeriode, geserPeriode,
   rentangPeriode, tanggalPendek, warnaTipe, tandaTipe,
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [nama, setNama] = useState("");
   const [me, setMe] = useState(null);
   const [pencatat, setPencatat] = useState({});
+  const [saldoTampil, ubahSaldo] = useSaldoTampil();
 
   const muat = useCallback(async () => {
     setData(null);
@@ -28,7 +30,7 @@ export default function Dashboard() {
       supabase.from("categories").select("*"),
       supabase.from("budgets").select("*").eq("periode", periode),
       supabase.from("goals").select("*").order("created_at"),
-      supabase.from("profiles").select("nama").maybeSingle(),
+      supabase.from("profiles").select("nama").eq("id", user.id).maybeSingle(),
     ]);
 
     const trxData = trx.data || [];
@@ -89,8 +91,21 @@ export default function Dashboard() {
         className="border-2 border-line p-5"
         style={{ background: "var(--teal)", color: "var(--paper)", boxShadow: "4px 4px 0 var(--shadow)" }}
       >
-        <p className="text-sm opacity-80">Total saldo semua dompet</p>
-        <p className="mt-1 text-[2.6rem] font-semibold leading-none num">{uang(totalSaldo)}</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm opacity-80">Total saldo semua dompet</p>
+          <button
+            type="button"
+            onClick={() => ubahSaldo()}
+            aria-label={saldoTampil ? "Sembunyikan saldo" : "Tampilkan saldo"}
+            className="border-2 px-2 py-0.5 text-xs press"
+            style={{ borderColor: "rgba(255,255,255,.45)" }}
+          >
+            {saldoTampil ? "Sembunyikan" : "Lihat"}
+          </button>
+        </div>
+        <p className="mt-1 text-[2.6rem] font-semibold leading-none num">
+          {saldoTampil ? uang(totalSaldo) : `Rp ${SALDO_SAMAR}`}
+        </p>
         <div className="mt-5 grid grid-cols-2 gap-3 border-t-2 pt-4" style={{ borderColor: "rgba(255,255,255,.3)" }}>
           <div>
             <p className="text-xs opacity-80">Masuk bulan ini</p>
@@ -123,7 +138,7 @@ export default function Dashboard() {
             <div key={d.id} className="frame-flat flex items-center gap-3 p-3">
               <span className="h-8 w-3 border-2 border-line" style={{ background: d.warna }} />
               <span className="flex-1">{d.nama}</span>
-              <span className="num font-medium">{uang(d.saldo)}</span>
+              <span className="num font-medium">{saldoTampil ? uang(d.saldo) : SALDO_SAMAR}</span>
             </div>
           ))}
           {!data.dompet.length && (

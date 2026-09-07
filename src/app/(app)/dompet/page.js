@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase/client";
 import { Judul, Kartu, Memuat, Panel, Label } from "@/components/ui";
 import { uang } from "@/lib/format";
+import { useSaldoTampil, SALDO_SAMAR } from "@/lib/saldo";
 
 const JENIS = [
   { n: "cash", l: "Tunai" }, { n: "bank", l: "Rekening bank" },
@@ -28,6 +29,7 @@ export default function Dompet() {
   const [nama, setNama] = useState({});         // user_id -> nama
   const [form, setForm] = useState(null);
   const [gabung, setGabung] = useState(null);
+  const [saldoTampil, ubahSaldo] = useSaldoTampil();
 
   const muat = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -136,7 +138,11 @@ export default function Dompet() {
     <div>
       <Judul
         anak="Dompet"
-        keterangan={`Total ${uang(total)}`}
+        keterangan={
+          <button type="button" onClick={() => ubahSaldo()} className="underline decoration-dotted underline-offset-2">
+            {saldoTampil ? `Total ${uang(total)}` : `Total Rp ${SALDO_SAMAR} · ketuk untuk lihat`}
+          </button>
+        }
         aksi={
           <div className="flex gap-2">
             <button className="chip" onClick={() => setGabung({ kode: "" })}>Gabung</button>
@@ -162,7 +168,7 @@ export default function Dompet() {
                     {bersama && ` · 🤝 ${ikutan ? `dari ${namaOrang(d.user_id)}` : "bersama"}`}
                   </p>
                 </div>
-                <span className="num font-medium">{uang(d.saldo)}</span>
+                <span className="num font-medium">{saldoTampil ? uang(d.saldo) : SALDO_SAMAR}</span>
               </Kartu>
             </button>
           );
@@ -255,7 +261,7 @@ export default function Dompet() {
               <p className="text-xs text-muted">
                 {JENIS.find((j) => j.n === form.jenis)?.l} · dari {namaOrang(form.user_id)}
               </p>
-              <p className="num text-lg">{uang(form.saldo)}</p>
+              <p className="num text-lg">{saldoTampil ? uang(form.saldo) : `Rp ${SALDO_SAMAR}`}</p>
             </Kartu>
             <p className="text-xs text-muted">
               Kamu bisa mencatat dan mengubah transaksi di dompet ini. Setelan dompet

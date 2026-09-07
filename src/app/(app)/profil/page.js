@@ -19,7 +19,7 @@ export default function Profil() {
         data: { user },
       } = await supabase.auth.getUser();
       setEmail(user?.email || "");
-      const { data } = await supabase.from("profiles").select("nama").maybeSingle();
+      const { data } = await supabase.from("profiles").select("nama").eq("id", user.id).maybeSingle();
       setNama(data?.nama || "");
       setSiap(true);
     })();
