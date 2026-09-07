@@ -20,6 +20,25 @@ Fitur lain: pencatatan pindah dana antar dompet, tema terang/gelap, PWA
 (bisa dipasang ke home screen), dan Row Level Security sehingga data tiap
 akun terisolasi di database.
 
+### Dompet bersama (catatan keluarga)
+
+Dua orang bisa berbagi satu dompet untuk mencatat pengeluaran bersama:
+
+1. Pemilik dompet buka **Dompet → pilih dompet → Buat kode undangan**.
+2. Kode 6 karakter itu dibagikan (berlaku 7 hari, sekali pakai).
+3. Orang kedua buka **Dompet → Gabung**, masukkan kode.
+
+Setelah gabung, keduanya bisa mencatat, mengubah, dan menghapus transaksi di
+dompet itu; saldo dihitung dari semua transaksi siapa pun. Di halaman
+Transaksi dan Beranda muncul label **"oleh &lt;nama&gt;"** untuk catatan dari
+anggota lain. Setelan dompet (nama, jenis, saldo awal) tetap hanya bisa
+diubah pemiliknya. Anggota bisa keluar kapan saja lewat panel dompet.
+
+> Fitur ini butuh tabel & kebijakan tambahan. Kalau database-mu **sudah
+> jalan** sebelum fitur ini ada, jalankan `supabase/dompet-bersama.sql` di
+> SQL Editor sekali. Instalasi baru sudah otomatis lengkap dari
+> `supabase/schema.sql`.
+
 ---
 
 # Cara deploy gratis

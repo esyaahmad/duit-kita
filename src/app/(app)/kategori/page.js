@@ -12,7 +12,9 @@ export default function Kategori() {
   const [form, setForm] = useState(null);
 
   const muat = useCallback(async () => {
-    const { data } = await supabase.from("categories").select("*").order("tipe").order("nama");
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data } = await supabase.from("categories").select("*")
+      .eq("user_id", user.id).order("tipe").order("nama");
     setList(data || []);
   }, [supabase]);
 

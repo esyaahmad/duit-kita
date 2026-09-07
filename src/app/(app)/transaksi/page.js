@@ -14,17 +14,33 @@ export default function Transaksi() {
   const [saring, setSaring] = useState("semua");
   const [cari, setCari] = useState("");
   const [data, setData] = useState(null);
+  const [me, setMe] = useState(null);
+  const [pencatat, setPencatat] = useState({});
   const [form, setForm] = useState({ buka: false, awal: null });
 
   const muat = useCallback(async () => {
     const { awal, akhir } = rentangPeriode(periode);
+    const { data: { user } } = await supabase.auth.getUser();
+    setMe(user.id);
     const [trx, kat, dom] = await Promise.all([
       supabase.from("transactions").select("*").gte("tanggal", awal).lte("tanggal", akhir)
         .order("tanggal", { ascending: false }).order("created_at", { ascending: false }),
       supabase.from("categories").select("*").order("nama"),
       supabase.from("wallets").select("*").order("urutan"),
     ]);
-    setData({ transaksi: trx.data || [], kategori: kat.data || [], dompet: dom.data || [] });
+    const trxData = trx.data || [];
+
+    const lainIds = [...new Set(trxData.map((t) => t.user_id).filter((id) => id && id !== user.id))];
+    if (lainIds.length) {
+      const { data: profil } = await supabase.from("profiles").select("id,nama").in("id", lainIds);
+      const peta = {};
+      (profil || []).forEach((p) => { peta[p.id] = p.nama || "Anggota"; });
+      setPencatat(peta);
+    } else {
+      setPencatat({});
+    }
+
+    setData({ transaksi: trxData, kategori: kat.data || [], dompet: dom.data || [] });
   }, [periode, supabase]);
 
   useEffect(() => { muat(); }, [muat]);
@@ -112,6 +128,7 @@ export default function Transaksi() {
                           {t.tipe === "transfer"
                             ? `${petaDompet[t.wallet_id]?.nama || "?"} ke ${petaDompet[t.wallet_tujuan_id]?.nama || "?"}`
                             : `${k?.nama || "Tanpa kategori"} · ${petaDompet[t.wallet_id]?.nama || "?"}`}
+                          {t.user_id && me && t.user_id !== me && ` · oleh ${pencatat[t.user_id] || "anggota"}`}
                         </p>
                       </div>
                       <span className="num font-medium" style={{ color: warnaTipe(t.tipe) }}>
@@ -131,7 +148,7 @@ export default function Transaksi() {
         awal={form.awal}
         tutup={() => setForm({ buka: false, awal: null })}
         dompet={data.dompet}
-        kategori={data.kategori}
+        kategori={me ? data.kategori.filter((k) => k.user_id === me) : data.kategori}
         selesai={muat}
       />
     </div>

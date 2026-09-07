@@ -13,10 +13,14 @@ export default function Dashboard() {
   const [periode, setPeriode] = useState(periodeSekarang());
   const [data, setData] = useState(null);
   const [nama, setNama] = useState("");
+  const [me, setMe] = useState(null);
+  const [pencatat, setPencatat] = useState({});
 
   const muat = useCallback(async () => {
     setData(null);
     const { awal, akhir } = rentangPeriode(periode);
+    const { data: { user } } = await supabase.auth.getUser();
+    setMe(user.id);
 
     const [saldo, trx, kat, anggaran, target, profil] = await Promise.all([
       supabase.from("wallet_balances").select("*").order("urutan"),
@@ -26,6 +30,17 @@ export default function Dashboard() {
       supabase.from("goals").select("*").order("created_at"),
       supabase.from("profiles").select("nama").maybeSingle(),
     ]);
+
+    const trxData = trx.data || [];
+    const lainIds = [...new Set(trxData.map((t) => t.user_id).filter((id) => id && id !== user.id))];
+    if (lainIds.length) {
+      const { data: p } = await supabase.from("profiles").select("id,nama").in("id", lainIds);
+      const peta = {};
+      (p || []).forEach((x) => { peta[x.id] = x.nama || "Anggota"; });
+      setPencatat(peta);
+    } else {
+      setPencatat({});
+    }
 
     setNama(profil.data?.nama || "");
     setData({
@@ -175,7 +190,10 @@ export default function Dashboard() {
                   <span className="text-xl">{t.tipe === "transfer" ? "🔁" : k?.ikon || "💸"}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm">{t.catatan || k?.nama || "Pindah dana"}</p>
-                    <p className="text-xs text-muted num">{tanggalPendek(t.tanggal)}</p>
+                    <p className="truncate text-xs text-muted">
+                      <span className="num">{tanggalPendek(t.tanggal)}</span>
+                      {t.user_id && me && t.user_id !== me && ` · oleh ${pencatat[t.user_id] || "anggota"}`}
+                    </p>
                   </div>
                   <span className="num text-sm font-medium" style={{ color: warnaTipe(t.tipe) }}>
                     {tandaTipe(t.tipe)}{uangRingkas(t.jumlah)}

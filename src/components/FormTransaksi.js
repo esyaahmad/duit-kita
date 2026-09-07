@@ -59,7 +59,6 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
     } = await supabase.auth.getUser();
 
     const baris = {
-      user_id: user.id,
       tipe: f.tipe,
       jumlah,
       tanggal: f.tanggal,
@@ -69,9 +68,11 @@ export default function FormTransaksi({ buka, tutup, dompet, kategori, awal, sel
       category_id: f.tipe === "transfer" ? null : f.category_id || null,
     };
 
+    // Saat mengubah, jangan sentuh user_id — di dompet bersama transaksi
+    // tetap tercatat atas nama orang yang pertama mencatatnya.
     const { error } = awal
       ? await supabase.from("transactions").update(baris).eq("id", awal.id)
-      : await supabase.from("transactions").insert(baris);
+      : await supabase.from("transactions").insert({ ...baris, user_id: user.id });
 
     setSibuk(false);
     if (error) return setGalat(error.message);

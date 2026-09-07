@@ -15,8 +15,9 @@ export default function Anggaran() {
 
   const muat = useCallback(async () => {
     const { awal, akhir } = rentangPeriode(periode);
+    const { data: { user } } = await supabase.auth.getUser();
     const [kat, ang, trx] = await Promise.all([
-      supabase.from("categories").select("*").eq("tipe", "expense").order("nama"),
+      supabase.from("categories").select("*").eq("user_id", user.id).eq("tipe", "expense").order("nama"),
       supabase.from("budgets").select("*").eq("periode", periode),
       supabase.from("transactions").select("category_id,jumlah").eq("tipe", "expense")
         .gte("tanggal", awal).lte("tanggal", akhir),
