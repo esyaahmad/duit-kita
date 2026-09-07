@@ -186,6 +186,43 @@
   --bg-repeat: no-repeat, repeat;
 }
 
+/* ---------- GRAND LINE — perkamen peta harta, bajak laut, komik ----------
+   Motif digambar sendiri (tengkorak & tulang bersilang, jangkar, kemudi
+   kapal, mata angin, peti harta, ombak, topi jerami). Kalau kamu punya
+   gambar sendiri yang boleh dipakai, taruh di /public lalu ganti lapis
+   pertama --bg-image jadi url("/nama-gambar.png").                        */
+:root[data-tema="grandline"] {
+  --paper: #f0dfba;
+  --surface: #faf0d6;
+  --raised: #fffaea;
+  --ink: #3a2412;
+  --muted: #8b6b47;
+  --line: #4a2c17;
+  --teal: #0f6d7a;           /* laut Grand Line — saldo & pemasukan */
+  --mustard: #e9a119;        /* emas topi jerami — tombol tambah */
+  --brick: #c0392b;          /* merah bajak laut — pengeluaran & tombol utama */
+  --shadow: rgba(74, 44, 23, 1);
+  --on-accent: #3a2412;
+
+  --radius: 6px;
+  --bw: 2px;
+  --sx: 4px; --sy: 4px; --sblur: 0px; --sspread: 0px;
+  --press: 4px;
+  --ikon-w: 2.6;
+
+  --font-display: var(--font-komik), var(--font-sans), sans-serif;
+  --display-transform: uppercase;
+  --display-spacing: 0.045em;
+
+  --bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%234a2c17' stroke-opacity='0.16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M28 40a12 12 0 0 1 24 0c0 5-2 8-5 10v5H33v-5c-3-2-5-5-5-10z'/%3E%3Ccircle cx='34' cy='40' r='3.2'/%3E%3Ccircle cx='46' cy='40' r='3.2'/%3E%3Cpath d='M40 47v4'/%3E%3Cpath d='M18 62l44-22M18 40l44 22'/%3E%3Cpath d='M98 46l24 24M122 46L98 70'/%3E%3Cpath d='M94 50l8-8M126 50l-8-8'/%3E%3Ccircle cx='96' cy='44' r='2.5'/%3E%3Ccircle cx='124' cy='44' r='2.5'/%3E%3Ccircle cx='152' cy='24' r='4'/%3E%3Cpath d='M152 28v30M142 36h20M134 50a18 18 0 0 0 36 0'/%3E%3Ccircle cx='185' cy='105' r='12'/%3E%3Ccircle cx='185' cy='105' r='4'/%3E%3Cpath d='M185 101v-9M185 109v9M181 105h-9M189 105h9'/%3E%3Cpath d='M176.5 96.5l-4-4M193.5 113.5l4 4M193.5 96.5l4-4M176.5 113.5l-4 4'/%3E%3Cpath d='M45 138l5 14 14 5-14 5-5 14-5-14-14-5 14-5z'/%3E%3Ccircle cx='45' cy='157' r='20'/%3E%3Cpath d='M132 158h40v22h-40z'/%3E%3Cpath d='M132 158a20 11 0 0 1 40 0'/%3E%3Cpath d='M152 164v9'/%3E%3Cpath d='M176 162q14-8 28 0'/%3E%3Cpath d='M190 162c-1-8 0-12 2-16'/%3E%3Cpath d='M192 146c-5-3-9-2-11 1M192 146c5-3 9-1 10 2M192 146c-1-5 1-8 4-9'/%3E%3Cpath d='M92 98c6-6 12-6 18 0s12 6 18 0'/%3E%3Cpath d='M14 104c5-5 10-5 15 0s10 5 15 0'/%3E%3Cpath d='M186 186c6-6 12-6 18 0'/%3E%3Cellipse cx='100' cy='200' rx='22' ry='7'/%3E%3Cpath d='M84 198a16 11 0 0 1 32 0'/%3E%3Cpath d='M85 193h30'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(60% 40% at 14% 10%, rgba(176, 128, 58, 0.18), transparent 62%),
+    radial-gradient(55% 40% at 88% 76%, rgba(150, 92, 40, 0.16), transparent 62%),
+    radial-gradient(130% 55% at 50% 0%, color-mix(in srgb, var(--brick) 12%, transparent), transparent 60%);
+  --bg-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%;
+  --bg-repeat: repeat, no-repeat, no-repeat, no-repeat;
+}
+
 /* ============================================================
    DASAR
    ============================================================ */
@@ -480,6 +517,54 @@ h1, h2, h3, h4 {
 }
 :root[data-tema="senja"] .chip-aktif { background: var(--teal); color: #241a35; }
 :root[data-tema="senja"] h1, :root[data-tema="senja"] h2 { font-weight: 600; }
+
+/* ---- GRAND LINE ---- */
+/* kartu = poster buronan: garis tebal + bingkai dalam tipis + bayangan tinta */
+:root[data-tema="grandline"] .frame {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brick) 30%, transparent),
+              var(--sx) var(--sy) 0 var(--shadow);
+}
+:root[data-tema="grandline"] .btn-utama {
+  background: var(--brick);
+  color: #fdf4e0;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--mustard) 75%, transparent),
+              var(--sx) var(--sy) 0 var(--shadow);
+}
+:root[data-tema="grandline"] .btn,
+:root[data-tema="grandline"] .chip { font-weight: 600; }
+:root[data-tema="grandline"] .chip-aktif { background: var(--brick); color: #fdf4e0; }
+:root[data-tema="grandline"] .field {
+  border-color: color-mix(in srgb, var(--line) 78%, transparent);
+}
+/* navigasi = geladak kapal kayu */
+:root[data-tema="grandline"] .nav-bawah {
+  border-top-width: 3px;
+  background:
+    repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--line) 12%, transparent) 0 1px, transparent 1px 44px),
+    var(--surface);
+  box-shadow: 0 -3px 0 color-mix(in srgb, var(--brick) 35%, transparent);
+}
+:root[data-tema="grandline"] .nav-item-aktif {
+  background: color-mix(in srgb, var(--brick) 15%, transparent);
+  box-shadow: inset 0 3px 0 var(--brick);
+}
+/* tombol tambah = koin emas */
+:root[data-tema="grandline"] .fab {
+  border-radius: 999px;
+  border-width: 3px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--line) 28%, transparent),
+              var(--sx) var(--sy) 0 var(--shadow);
+}
+:root[data-tema="grandline"] .panel-sheet {
+  border-top-width: 4px;
+  border-top-color: var(--brick);
+}
+/* judul komik: merah dengan bayangan emas */
+:root[data-tema="grandline"] h1 {
+  color: var(--brick);
+  text-shadow: 2px 2px 0 color-mix(in srgb, var(--mustard) 80%, transparent);
+}
 
 /* ---- SAMUDRA ---- */
 :root[data-tema="samudra"] .btn-utama {

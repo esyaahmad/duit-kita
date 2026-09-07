@@ -16,10 +16,10 @@ Next.js 14 (App Router) + Supabase, gratis di-hosting di Vercel.
 | Target | Target tabungan dengan setoran bertahap |
 | Profil | Nama, pemilih tema, ekspor CSV, keluar |
 
-Fitur lain: pencatatan pindah dana antar dompet, 6 tema tampilan
-(Kertas, Malam, Futuristik, Go Green, Senja, Samudra) lewat Profil, PWA
-(bisa dipasang ke home screen), dan Row Level Security sehingga data tiap
-akun terisolasi di database.
+Fitur lain: pencatatan pindah dana antar dompet, 7 tema tampilan
+(Kertas, Malam, Futuristik, Go Green, Senja, Samudra, Grand Line) lewat
+Profil, PWA (bisa dipasang ke home screen), dan Row Level Security sehingga
+data tiap akun terisolasi di database.
 
 ### Dompet bersama (catatan keluarga)
 
@@ -165,4 +165,23 @@ Menambah tema: satu blok di `globals.css` + satu entri di `src/lib/tema.js`
 (plus warna bilah status di `META_WARNA` dan skrip pra-paint di `layout.js`).
 
 Pratinjau cepat tanpa mengubah setelan: buka mana saja dengan `?tema=futuristik`
-(atau `hijau`, `senja`, `samudra`, `malam`, `kertas`).
+(atau `hijau`, `senja`, `samudra`, `grandline`, `malam`, `kertas`).
+
+### Memakai gambarmu sendiri di tema Grand Line
+
+Motif bajak laut (tengkorak & tulang bersilang, pedang bersilang, jangkar,
+kemudi kapal, mata angin, peti harta, pulau kelapa, ombak, topi jerami)
+digambar sendiri sebagai SVG, jadi bebas dipakai. Kalau kamu punya berkas
+gambar yang **boleh kamu pakai**, taruh di `public/` lalu ganti lapis pertama
+`--bg-image` pada blok `:root[data-tema="grandline"]`:
+
+```css
+--bg-image:
+  url("/pola-bajak-laut.png"),   /* ganti lapis ini */
+  radial-gradient(...), radial-gradient(...), radial-gradient(...);
+--bg-size: 220px 220px, 100% 100%, 100% 100%, 100% 100%;
+```
+
+Catatan: gambar karakter anime/manga umumnya berhak cipta penerbitnya —
+pastikan kamu memang berhak memakainya sebelum menaruhnya di aplikasi yang
+dipublikasikan.

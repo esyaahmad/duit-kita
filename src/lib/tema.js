@@ -15,6 +15,8 @@ export const TEMA = [
     swatch: ["#241a35", "#c084fc", "#fb923c", "#fb7185"] },
   { id: "samudra",    nama: "Samudra",    sub: "Biru tenang, membulat",    terang: true,
     swatch: ["#e7f1f5", "#0c8599", "#4dabf7", "#e8590c"] },
+  { id: "grandline",  nama: "Grand Line", sub: "Peta harta, bajak laut, komik", terang: true,
+    swatch: ["#f0dfba", "#c0392b", "#e9a119", "#0f6d7a"] },
 ];
 
 export const TEMA_DEFAULT = "kertas";
@@ -23,6 +25,7 @@ export const TEMA_DEFAULT = "kertas";
 export const META_WARNA = {
   kertas: "#ede7d9", malam: "#171613", futuristik: "#070a12",
   hijau: "#e9f2e0", senja: "#1a1327", samudra: "#e7f1f5",
+  grandline: "#f0dfba",
 };
 
 const VALID = new Set(TEMA.map((t) => t.id));
