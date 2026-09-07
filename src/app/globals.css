@@ -565,6 +565,23 @@ h1, h2, h3, h4 {
   color: var(--brick);
   text-shadow: 2px 2px 0 color-mix(in srgb, var(--mustard) 80%, transparent);
 }
+/* mural cakrawala: kapal bajak laut, pulau harta, matahari, ombak.
+   Ilustrasi asli — bukan jiplakan karakter mana pun. Ditempel di dasar
+   layar, di belakang seluruh konten (z-index -1, konten selalu di atas). */
+:root[data-tema="grandline"] body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: min(44vh, 380px);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.28;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='460' viewBox='0 0 1200 460'%3E%3Cg fill='none' stroke='%234a2c17' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='1050' cy='118' r='42'/%3E%3Cpath d='M1050 46v-20M1050 210v-20M970 118h-20M1150 118h-20M994 62l-14-14M1120 188l-14-14M1106 62l14-14M980 188l14-14'/%3E%3Cpath d='M120 130c6-8 12-8 18 0M138 130c6-8 12-8 18 0'/%3E%3Cpath d='M150 96c7-9 14-9 21 0M171 96c7-9 14-9 21 0'/%3E%3Cpath d='M232 74c6-8 12-8 18 0M250 74c6-8 12-8 18 0'/%3E%3Cpath d='M24 370q120-84 232 0'/%3E%3Cpath d='M84 370c-6-44-4-70 4-100M88 270c-24-10-42-4-50 10M88 270c24-14 46-8 56 8M88 270c-4-24 4-42 22-52'/%3E%3Cpath d='M164 370c-4-34-2-56 6-82M170 288c-20-8-34-2-42 10M170 288c20-10 36-6 44 8'/%3E%3Cpath d='M980 400q66-48 132 0'/%3E%3Cpath d='M1044 400c-4-30-2-48 4-70M1050 330c-16-6-30-2-36 8M1050 330c16-8 32-4 40 8'/%3E%3Cpath d='M366 350c16 58 82 80 168 80s152-22 168-80l-58 22H424Z'/%3E%3Cpath d='M398 370h272'/%3E%3Cpath d='M534 90v260M448 146v204M620 164v186'/%3E%3Cpath d='M484 134h100M576 146h88M408 196h80'/%3E%3Cpath d='M490 146c32-14 82-14 114 0l-8 100c-32 12-70 12-98 0Z'/%3E%3Cpath d='M406 206c22-10 60-10 82 0l-6 78c-22 8-50 8-70 0Z'/%3E%3Cpath d='M578 174c20-8 54-8 72 0l-6 70c-20 6-46 6-60 0Z'/%3E%3Cpath d='M534 86l46 10-46 12Z'/%3E%3Cpath d='M534 94L398 354M534 94l152 260M448 146l-64 204M620 164l64 186'/%3E%3C/g%3E%3Cpath fill='%234a2c17' d='M544 178a20 20 0 0 1 40 0c0 8-3 13-8 17v8h-24v-8c-5-4-8-9-8-17Z'/%3E%3Cg fill='%23f6ead0'%3E%3Ccircle cx='557' cy='180' r='4'/%3E%3Ccircle cx='571' cy='180' r='4'/%3E%3C/g%3E%3Cg fill='none' stroke='%234a2c17' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M540 212l48 22M588 212l-48 22'/%3E%3C/g%3E%3Cg fill='none' stroke='%234a2c17' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M30 430q26-14 52 0 26 14 52 0 26-14 52 0 26 14 52 0'/%3E%3Cpath d='M360 444q26-14 52 0 26 14 52 0 26-14 52 0 26 14 52 0'/%3E%3Cpath d='M700 430q26-14 52 0 26 14 52 0 26-14 52 0 26 14 52 0'/%3E%3Cpath d='M150 408q22-12 44 0 22 12 44 0'/%3E%3Cpath d='M900 408q22-12 44 0 22 12 44 0'/%3E%3C/g%3E%3C/svg%3E")
+    bottom center / 100% auto no-repeat;
+}
 
 /* ---- SAMUDRA ---- */
 :root[data-tema="samudra"] .btn-utama {

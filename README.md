@@ -169,11 +169,18 @@ Pratinjau cepat tanpa mengubah setelan: buka mana saja dengan `?tema=futuristik`
 
 ### Memakai gambarmu sendiri di tema Grand Line
 
-Motif bajak laut (tengkorak & tulang bersilang, pedang bersilang, jangkar,
-kemudi kapal, mata angin, peti harta, pulau kelapa, ombak, topi jerami)
-digambar sendiri sebagai SVG, jadi bebas dipakai. Kalau kamu punya berkas
-gambar yang **boleh kamu pakai**, taruh di `public/` lalu ganti lapis pertama
-`--bg-image` pada blok `:root[data-tema="grandline"]`:
+Semua gambar di tema ini **digambar sendiri sebagai SVG**, jadi bebas dipakai:
+
+- **pola latar** (di `--bg-image`): tengkorak & tulang bersilang, pedang
+  bersilang, jangkar, kemudi kapal, mata angin, peti harta, pulau kelapa,
+  ombak, topi jerami — di-*tile* 220px.
+- **mural cakrawala** (di `body::before`, dipatri ke dasar layar): kapal
+  bajak laut berlayar, dua pulau harta berpohon kelapa, matahari, ombak,
+  tengkorak di layar utama.
+
+Kalau kamu punya berkas gambar yang **boleh kamu pakai**, taruh di `public/`
+lalu ganti sumbernya: untuk pola, lapis pertama `--bg-image`; untuk mural,
+`url(...)` di `:root[data-tema="grandline"] body::before`.
 
 ```css
 --bg-image:
