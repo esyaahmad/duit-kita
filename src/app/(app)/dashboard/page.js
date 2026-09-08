@@ -126,15 +126,20 @@ export default function Dashboard() {
   const petaKategori = Object.fromEntries(data.kategori.map((k) => [k.id, k]));
   const petaDompet = Object.fromEntries(data.dompet.map((d) => [d.id, d]));
 
-  const anggaranTampil = data.anggaran
-    .map((a) => {
-      const terpakai = data.transaksi
-        .filter((t) => t.tipe === "expense" && t.category_id === a.category_id)
-        .reduce((s, t) => s + Number(t.jumlah), 0);
-      return { ...a, terpakai, kategori: petaKategori[a.category_id] };
-    })
+  const anggaranPakai = data.anggaran.map((a) => {
+    const terpakai = data.transaksi
+      .filter((t) => t.tipe === "expense" && t.category_id === a.category_id)
+      .reduce((s, t) => s + Number(t.jumlah), 0);
+    return { ...a, terpakai, kategori: petaKategori[a.category_id] };
+  });
+  const totalAnggaran = anggaranPakai.reduce((s, a) => s + Number(a.jumlah), 0);
+  const terpakaiAnggaran = anggaranPakai.reduce((s, a) => s + a.terpakai, 0);
+  const sisaAnggaran = totalAnggaran - terpakaiAnggaran;
+  const saldoBayangan = totalSaldo - totalAnggaran;
+  const anggaranTampil = [...anggaranPakai]
     .sort((a, b) => b.terpakai / b.jumlah - a.terpakai / a.jumlah)
     .slice(0, 3);
+  const samar = (n) => (saldoTampil ? uang(n) : `Rp ${SALDO_SAMAR}`);
 
   const jam = new Date().getHours();
   const sapaan = jam < 11 ? "Selamat pagi" : jam < 15 ? "Selamat siang" : jam < 19 ? "Selamat sore" : "Selamat malam";
@@ -177,6 +182,12 @@ export default function Dashboard() {
             <p className="text-lg num">{uangRingkas(keluar)}</p>
           </div>
         </div>
+        {totalAnggaran > 0 && (
+          <div className="mt-4 flex items-center justify-between border-t-2 pt-3" style={{ borderColor: "rgba(255,255,255,.3)" }}>
+            <p className="text-xs opacity-80">Saldo bayangan<br />(saldo − total anggaran)</p>
+            <p className="num text-xl font-semibold">{samar(saldoBayangan)}</p>
+          </div>
+        )}
       </div>
 
       {/* Transaksi cepat */}
@@ -283,12 +294,29 @@ export default function Dashboard() {
         </section>
       )}
 
-      {anggaranTampil.length > 0 && (
+      {totalAnggaran > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Anggaran terketat</h2>
-            <Link href="/anggaran" className="text-sm underline">Semua</Link>
+            <h2 className="text-lg font-semibold">Anggaran bulan ini</h2>
+            <Link href="/anggaran" className="text-sm underline">Atur</Link>
           </div>
+
+          <Kartu datar className="mb-3 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>{sisaAnggaran < 0 ? "Melebihi anggaran" : "Sisa anggaran"}</span>
+              <span className="num font-semibold"
+                style={{ color: sisaAnggaran < 0 ? "var(--brick)" : "var(--ink)" }}>
+                {uang(Math.abs(sisaAnggaran))}
+              </span>
+            </div>
+            <Bilah persen={(terpakaiAnggaran / totalAnggaran) * 100}
+              warna={terpakaiAnggaran > totalAnggaran ? "var(--brick)"
+                : terpakaiAnggaran > totalAnggaran * 0.8 ? "var(--mustard)" : "var(--teal)"} />
+            <p className="text-xs text-muted num">
+              Terpakai {uangRingkas(terpakaiAnggaran)} dari {uangRingkas(totalAnggaran)}
+            </p>
+          </Kartu>
+
           <div className="space-y-3">
             {anggaranTampil.map((a) => {
               const persen = (a.terpakai / a.jumlah) * 100;

@@ -7,7 +7,7 @@ Next.js 14 (App Router) + Supabase, gratis di-hosting di Vercel.
 
 | Halaman | Fungsi |
 |---|---|
-| Beranda | Total saldo, ringkasan masuk/keluar bulan ini, anggaran terketat, target, transaksi terakhir |
+| Beranda | Total saldo, saldo bayangan, ringkasan masuk/keluar, anggaran bulan ini, target, transaksi terakhir |
 | Transaksi | Daftar per hari, cari, filter jenis, pindah bulan, tambah/ubah/hapus |
 | Anggaran | Batas belanja per kategori per bulan (pribadi & bersama), atur semua sekaligus |
 | Laporan | Diagram lingkaran pengeluaran per kategori + batang masuk/keluar 6 bulan |

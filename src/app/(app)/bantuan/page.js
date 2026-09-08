@@ -23,6 +23,10 @@ const BANTUAN = [
         q: "Mengenal navigasi",
         a: "Bar bawah: Beranda (ringkasan), Transaksi (daftar lengkap), Anggaran, dan Lainnya (semua menu lain: Laporan, Langganan, Transaksi cepat, Dompet, Kategori, Target, Profil). Tombol + selalu ada untuk mencatat cepat.",
       },
+      {
+        q: "Apa itu “Saldo bayangan” di Beranda?",
+        a: "Total saldo dikurangi total anggaran bulan ini. Angka ini menggambarkan uang yang benar-benar “bebas” setelah kamu menyisihkan rencana belanja sebulan. Bisa negatif — artinya anggaranmu melebihi saldo. Muncul di kartu saldo hanya kalau kamu punya anggaran bulan ini.",
+      },
     ],
   },
   {
