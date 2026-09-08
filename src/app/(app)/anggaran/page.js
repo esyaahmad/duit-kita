@@ -46,11 +46,11 @@ export default function Anggaran() {
     const sc = scope === "pribadi" || bersama.some((w) => w.id === scope) ? scope : "pribadi";
     if (sc !== scope) setScope("pribadi");
 
-    let sharedBudgets = [];
-    if (sc !== "pribadi") {
+    const sharedByWallet = {};
+    if (bersama.length) {
       const { data: sb } = await supabase.from("shared_budgets")
-        .select("*").eq("wallet_id", sc).eq("periode", periode);
-      sharedBudgets = sb || [];
+        .select("*").in("wallet_id", bersama.map((w) => w.id)).eq("periode", periode);
+      (sb || []).forEach((b) => { (sharedByWallet[b.wallet_id] ||= []).push(b); });
     }
 
     setData({
@@ -58,7 +58,8 @@ export default function Anggaran() {
       kategori: kat.data || [],
       bersama,
       budgets: budg.data || [],
-      sharedBudgets,
+      sharedByWallet,
+      sharedBudgets: sharedByWallet[sc] || [],
       trx: trx.data || [],
       trxLalu: trxL.data || [],
       sc,
@@ -113,6 +114,28 @@ export default function Anggaran() {
     setDraft((prev) => {
       const d = { ...prev };
       rows.forEach((r) => { if (r.bulanLalu > 0) d[r.key] = String(Math.round(r.bulanLalu)); });
+      return d;
+    });
+  }
+
+  // Salin nilai anggaran dari scope lain (Pribadi / dompet bersama lain),
+  // dicocokkan berdasarkan nama kategori.
+  function salinDari(sumber) {
+    const map = {};
+    if (sumber === "pribadi") {
+      const namaById = Object.fromEntries(
+        data.kategori.filter((k) => k.user_id === data.me).map((k) => [k.id, k.nama])
+      );
+      data.budgets.forEach((b) => {
+        const n = namaById[b.category_id];
+        if (n) map[n] = Number(b.jumlah);
+      });
+    } else {
+      (data.sharedByWallet[sumber] || []).forEach((b) => { map[b.kategori_nama] = Number(b.jumlah); });
+    }
+    setDraft((prev) => {
+      const d = { ...prev };
+      rows.forEach((r) => { if (map[r.nama] > 0) d[r.key] = String(Math.round(map[r.nama])); });
       return d;
     });
   }
@@ -198,11 +221,28 @@ export default function Anggaran() {
               dompet <b>{dompetNama}</b>, dicocokkan lewat nama kategori.
             </p>
           )}
-          <div className="mb-3 flex flex-wrap gap-2">
-            <button className="chip" onClick={isiBulanLalu}>Isi dari belanja bulan lalu</button>
-            <button className="chip" onClick={() => setDraft(Object.fromEntries(rows.map((r) => [r.key, ""])))}>
-              Kosongkan
-            </button>
+          <div className="mb-3 space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <button className="chip" onClick={isiBulanLalu}>Isi dari belanja bulan lalu</button>
+              <button className="chip" onClick={() => setDraft(Object.fromEntries(rows.map((r) => [r.key, ""])))}>
+                Kosongkan
+              </button>
+            </div>
+            {(data.sc !== "pribadi" || data.bersama.length > 0) && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted">Salin dari:</span>
+                {data.sc !== "pribadi" && (
+                  <button className="chip" onClick={() => salinDari("pribadi")}>Anggaran pribadi</button>
+                )}
+                {data.bersama
+                  .filter((w) => w.id !== data.sc)
+                  .map((w) => (
+                    <button key={w.id} className="chip whitespace-nowrap" onClick={() => salinDari(w.id)}>
+                      🤝 {w.nama}
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

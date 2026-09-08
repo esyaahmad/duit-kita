@@ -82,6 +82,10 @@ berisi semua kategori sekaligus — tinggal isi angkanya. Ada tombol **"Isi
 dari belanja bulan lalu"** (mengisi semua sekaligus dari realisasi bulan lalu)
 dan tiap baris menampilkan angka bulan lalu yang bisa dipakai sekali ketuk.
 
+Di baris **"Salin dari:"** kamu bisa menyalin nilai anggaran dari
+**Anggaran pribadi** atau dari **dompet bersama lain** — dicocokkan per nama
+kategori, dan masih bisa diubah sebelum disimpan.
+
 > Butuh `supabase/anggaran-bersama.sql` (jalankan sekali untuk database lama;
 > perlu `dompet-bersama.sql` lebih dulu). Instalasi baru sudah lengkap dari
 > `schema.sql`.

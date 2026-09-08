@@ -105,6 +105,10 @@ const BANTUAN = [
         a: "Kalau punya dompet bersama, di halaman Anggaran ada chip “Pribadi / 🤝 nama dompet”. Pilih dompet bersama untuk anggaran yang dilihat & diubah kedua anggota. Terpakainya dihitung dari semua transaksi di dompet itu (dari siapa pun), dicocokkan lewat nama kategori.",
       },
       {
+        q: "Menyalin anggaran antar dompet",
+        a: "Saat mengatur anggaran, di bagian “Salin dari:” ketuk Anggaran pribadi atau nama dompet lain — angkanya langsung terisi (dicocokkan per nama kategori). Kamu masih bisa mengubahnya sebelum Simpan.",
+      },
+      {
         q: "Target tabungan",
         a: "Lainnya → Target tabungan → Tambah. Isi nama, jumlah target, dan ikon. Tambahkan uang lewat tombol “Setor dana” pada tiap target.",
       },
