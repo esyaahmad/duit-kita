@@ -97,8 +97,12 @@ const BANTUAN = [
         a: "Buka Anggaran, ketuk kategori, isi batas belanja. Bilah progres jadi kuning saat lewat 80% dan merah saat lewat 100%. Kartu di atas menampilkan sisa anggaran seluruh bulan.",
       },
       {
-        q: "Menyalin anggaran dari bulan lalu",
-        a: "Saat bulan berjalan belum punya anggaran, muncul tombol “Salin dari bulan lalu”.",
+        q: "Membuat anggaran dengan cepat",
+        a: "Ketuk “Buat/Atur anggaran” — semua kategori tampil di satu layar, tinggal isi angkanya. Tombol “Isi dari belanja bulan lalu” mengisi semuanya sekaligus dari realisasi bulan lalu; tiap baris juga menampilkan angka bulan lalu yang bisa dipakai sekali ketuk.",
+      },
+      {
+        q: "Anggaran bersama (berdua)",
+        a: "Kalau punya dompet bersama, di halaman Anggaran ada chip “Pribadi / 🤝 nama dompet”. Pilih dompet bersama untuk anggaran yang dilihat & diubah kedua anggota. Terpakainya dihitung dari semua transaksi di dompet itu (dari siapa pun), dicocokkan lewat nama kategori.",
       },
       {
         q: "Target tabungan",

@@ -9,7 +9,7 @@ Next.js 14 (App Router) + Supabase, gratis di-hosting di Vercel.
 |---|---|
 | Beranda | Total saldo, ringkasan masuk/keluar bulan ini, anggaran terketat, target, transaksi terakhir |
 | Transaksi | Daftar per hari, cari, filter jenis, pindah bulan, tambah/ubah/hapus |
-| Anggaran | Batas belanja per kategori per bulan, bilah progres, salin dari bulan lalu |
+| Anggaran | Batas belanja per kategori per bulan (pribadi & bersama), atur semua sekaligus |
 | Laporan | Diagram lingkaran pengeluaran per kategori + batang masuk/keluar 6 bulan |
 | Dompet | Tunai, bank, e-wallet, kartu, investasi — saldo dihitung otomatis |
 | Kategori | Kategori pemasukan & pengeluaran dengan ikon |
@@ -67,6 +67,24 @@ dompet itu; saldo dihitung dari semua transaksi siapa pun. Di halaman
 Transaksi dan Beranda muncul label **"oleh &lt;nama&gt;"** untuk catatan dari
 anggota lain. Setelan dompet (nama, jenis, saldo awal) tetap hanya bisa
 diubah pemiliknya. Anggota bisa keluar kapan saja lewat panel dompet.
+
+### Anggaran bersama
+
+Di halaman **Anggaran**, kalau kamu punya dompet bersama muncul chip
+**Pribadi / 🤝 &lt;nama dompet&gt;** di atas. Pilih dompet bersama untuk
+mengatur anggaran yang **dilihat & diubah kedua anggota**. Terpakainya
+dihitung dari semua transaksi di dompet itu (dari siapa pun), dicocokkan
+berdasarkan **nama kategori** — jadi kategori "Makan & minum" milik masing-masing
+tetap dijumlahkan jadi satu.
+
+Pembuatannya dibuat cepat: tombol **Buat/Atur anggaran** membuka satu layar
+berisi semua kategori sekaligus — tinggal isi angkanya. Ada tombol **"Isi
+dari belanja bulan lalu"** (mengisi semua sekaligus dari realisasi bulan lalu)
+dan tiap baris menampilkan angka bulan lalu yang bisa dipakai sekali ketuk.
+
+> Butuh `supabase/anggaran-bersama.sql` (jalankan sekali untuk database lama;
+> perlu `dompet-bersama.sql` lebih dulu). Instalasi baru sudah lengkap dari
+> `schema.sql`.
 
 > Fitur ini butuh tabel & kebijakan tambahan. Kalau database-mu **sudah
 > jalan** sebelum fitur ini ada, jalankan `supabase/dompet-bersama.sql` di

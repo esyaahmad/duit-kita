@@ -427,3 +427,29 @@ create policy "berulang milik sendiri" on public.recurring
 
 alter table public.profiles add column if not exists pin_hash text;
 alter table public.profiles add column if not exists pin_salt text;
+
+-- ============================================================
+--  ANGGARAN BERSAMA (identik dengan supabase/anggaran-bersama.sql)
+-- ============================================================
+
+create table if not exists public.shared_budgets (
+  id            uuid primary key default gen_random_uuid(),
+  wallet_id     uuid not null references public.wallets(id) on delete cascade,
+  kategori_nama text not null,
+  jumlah        numeric(16,2) not null check (jumlah >= 0),
+  periode       text not null,
+  oleh          uuid references auth.users(id) on delete set null,
+  updated_at    timestamptz not null default now(),
+  created_at    timestamptz not null default now(),
+  unique (wallet_id, kategori_nama, periode)
+);
+create index if not exists shared_budgets_wallet_idx
+  on public.shared_budgets (wallet_id, periode);
+
+alter table public.shared_budgets enable row level security;
+
+drop policy if exists "anggaran bersama: anggota" on public.shared_budgets;
+create policy "anggaran bersama: anggota" on public.shared_budgets
+  for all
+  using (public.is_wallet_member(wallet_id))
+  with check (public.is_wallet_member(wallet_id));
