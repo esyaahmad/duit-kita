@@ -12,7 +12,7 @@ const grup = (s) => (angka(s) ? angka(s).toLocaleString("id-ID") : "");
 export default function Anggaran() {
   const supabase = getSupabase();
   const [periode, setPeriode] = useState(periodeSekarang());
-  const [scope, setScope] = useState("pribadi");
+  const [scope, setScope] = useState("pribadi"); // "pribadi" | <partnerId>
   const [mode, setMode] = useState("lihat");
   const [data, setData] = useState(null);
   const [draft, setDraft] = useState({});
@@ -23,8 +23,9 @@ export default function Anggaran() {
     const { awal, akhir } = rentangPeriode(periode);
     const rl = rentangPeriode(geserPeriode(periode, -1));
     const { data: { user } } = await supabase.auth.getUser();
+    const me = user.id;
 
-    const [kat, wm, wb, budg, trx, trxL] = await Promise.all([
+    const [kat, wm, wb, budg, trx, trxL, sb] = await Promise.all([
       supabase.from("categories").select("id,nama,tipe,ikon,user_id"),
       supabase.from("wallet_members").select("wallet_id,user_id"),
       supabase.from("wallet_balances").select("id,nama,user_id"),
@@ -33,33 +34,50 @@ export default function Anggaran() {
         .eq("tipe", "expense").gte("tanggal", awal).lte("tanggal", akhir),
       supabase.from("transactions").select("category_id,jumlah,wallet_id")
         .eq("tipe", "expense").gte("tanggal", rl.awal).lte("tanggal", rl.akhir),
+      supabase.from("shared_budgets").select("*").eq("periode", periode)
+        .or(`user_a.eq.${me},user_b.eq.${me}`),
     ]);
 
     const wallets = wb.data || [];
     const members = wm.data || [];
-    const kuikuti = new Set(members.filter((m) => m.user_id === user.id).map((m) => m.wallet_id));
-    const adaAnggota = new Set(members.map((m) => m.wallet_id));
-    const bersama = wallets
-      .filter((w) => kuikuti.has(w.id) || (w.user_id === user.id && adaAnggota.has(w.id)))
-      .map((w) => ({ id: w.id, nama: w.nama }));
+    const memberSet = new Set(members.map((m) => `${m.wallet_id}:${m.user_id}`));
 
-    const sc = scope === "pribadi" || bersama.some((w) => w.id === scope) ? scope : "pribadi";
-    if (sc !== scope) setScope("pribadi");
+    // pasangan = pengguna lain yang berbagi minimal satu dompet denganku
+    const partnerIds = new Set();
+    wallets.forEach((w) => {
+      if (w.user_id === me) {
+        members.filter((m) => m.wallet_id === w.id).forEach((m) => partnerIds.add(m.user_id));
+      } else if (memberSet.has(`${w.id}:${me}`)) {
+        partnerIds.add(w.user_id);
+      }
+    });
+    partnerIds.delete(me);
 
-    const sharedByWallet = {};
-    if (bersama.length) {
-      const { data: sb } = await supabase.from("shared_budgets")
-        .select("*").in("wallet_id", bersama.map((w) => w.id)).eq("periode", periode);
-      (sb || []).forEach((b) => { (sharedByWallet[b.wallet_id] ||= []).push(b); });
+    let namaPartner = {};
+    if (partnerIds.size) {
+      const { data: p } = await supabase.from("profiles").select("id,nama").in("id", [...partnerIds]);
+      (p || []).forEach((x) => { namaPartner[x.id] = x.nama || "Anggota"; });
     }
 
+    // anggaran bersama dikelompokkan per lawan
+    const sharedByPartner = {};
+    (sb.data || []).forEach((row) => {
+      const lawan = row.user_a === me ? row.user_b : row.user_a;
+      (sharedByPartner[lawan] ||= []).push(row);
+    });
+
+    const sc = scope === "pribadi" || partnerIds.has(scope) ? scope : "pribadi";
+    if (sc !== scope) setScope("pribadi");
+
     setData({
-      me: user.id,
+      me,
       kategori: kat.data || [],
-      bersama,
+      wallets,
+      memberSet,
+      partners: [...partnerIds].map((id) => ({ id, nama: namaPartner[id] || "Anggota" }))
+        .sort((a, b) => a.nama.localeCompare(b.nama)),
       budgets: budg.data || [],
-      sharedByWallet,
-      sharedBudgets: sharedByWallet[sc] || [],
+      sharedByPartner,
       trx: trx.data || [],
       trxLalu: trxL.data || [],
       sc,
@@ -68,6 +86,16 @@ export default function Anggaran() {
 
   useEffect(() => { muat(); }, [muat]);
   useEffect(() => { setMode("lihat"); }, [scope, periode]);
+
+  // dompet yang dibagi antara aku & partnerId
+  const dompetBersama = (partnerId) => {
+    if (!data) return [];
+    return data.wallets
+      .filter((w) =>
+        (w.user_id === data.me && data.memberSet.has(`${w.id}:${partnerId}`)) ||
+        (w.user_id === partnerId && data.memberSet.has(`${w.id}:${data.me}`)))
+      .map((w) => w.id);
+  };
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -92,16 +120,19 @@ export default function Anggaran() {
         }));
     }
 
-    const anggaranPer = Object.fromEntries(data.sharedBudgets.map((b) => [b.kategori_nama, Number(b.jumlah)]));
+    const wids = new Set(dompetBersama(data.sc));
+    const anggaranPer = Object.fromEntries(
+      (data.sharedByPartner[data.sc] || []).map((b) => [b.kategori_nama, Number(b.jumlah)])
+    );
     return [...new Set(data.kategori.filter((k) => k.tipe === "expense").map((k) => k.nama))]
       .sort((a, b) => a.localeCompare(b))
       .map((n) => ({
         key: n, nama: n, ikon: ikonByNama[n] || "📦",
         anggaran: anggaranPer[n] || 0,
-        terpakai: sum(data.trx, (t) => t.wallet_id === data.sc && namaKat[t.category_id] === n),
-        bulanLalu: sum(data.trxLalu, (t) => t.wallet_id === data.sc && namaKat[t.category_id] === n),
+        terpakai: sum(data.trx, (t) => wids.has(t.wallet_id) && namaKat[t.category_id] === n),
+        bulanLalu: sum(data.trxLalu, (t) => wids.has(t.wallet_id) && namaKat[t.category_id] === n),
       }));
-  }, [data]);
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function bukaAtur() {
     const d = {};
@@ -118,8 +149,7 @@ export default function Anggaran() {
     });
   }
 
-  // Salin nilai anggaran dari scope lain (Pribadi / dompet bersama lain),
-  // dicocokkan berdasarkan nama kategori.
+  // Salin nilai dari scope lain (Pribadi / pasangan lain), cocok per nama kategori.
   function salinDari(sumber) {
     const map = {};
     if (sumber === "pribadi") {
@@ -131,7 +161,7 @@ export default function Anggaran() {
         if (n) map[n] = Number(b.jumlah);
       });
     } else {
-      (data.sharedByWallet[sumber] || []).forEach((b) => { map[b.kategori_nama] = Number(b.jumlah); });
+      (data.sharedByPartner[sumber] || []).forEach((b) => { map[b.kategori_nama] = Number(b.jumlah); });
     }
     setDraft((prev) => {
       const d = { ...prev };
@@ -143,7 +173,10 @@ export default function Anggaran() {
   async function simpanAtur() {
     setSibuk(true);
     const { data: { user } } = await supabase.auth.getUser();
+    const now = new Date().toISOString();
+    const pasangan = data.sc !== "pribadi" ? [data.me, data.sc].sort() : null;
     const ops = [];
+
     for (const r of rows) {
       const n = angka(draft[r.key]);
       if (data.sc === "pribadi") {
@@ -156,21 +189,23 @@ export default function Anggaran() {
             .eq("user_id", user.id).eq("category_id", r.key).eq("periode", periode));
         }
       } else {
+        const [ua, ub] = pasangan;
         if (n > 0) {
           ops.push(supabase.from("shared_budgets").upsert(
-            { wallet_id: data.sc, kategori_nama: r.key, periode, jumlah: n, oleh: user.id, updated_at: new Date().toISOString() },
-            { onConflict: "wallet_id,kategori_nama,periode" }));
+            { user_a: ua, user_b: ub, kategori_nama: r.key, periode, jumlah: n, oleh: user.id, updated_at: now },
+            { onConflict: "user_a,user_b,kategori_nama,periode" }));
         } else if (r.anggaran > 0) {
           ops.push(supabase.from("shared_budgets").delete()
-            .eq("wallet_id", data.sc).eq("kategori_nama", r.key).eq("periode", periode));
+            .eq("user_a", ua).eq("user_b", ub).eq("kategori_nama", r.key).eq("periode", periode));
         }
       }
     }
+
     const res = await Promise.all(ops);
     setSibuk(false);
     const err = res.find((x) => x && x.error);
     if (err) {
-      alert("Gagal menyimpan anggaran bersama. Jalankan supabase/anggaran-bersama.sql di Supabase dulu.\n\n" + err.error.message);
+      alert("Gagal menyimpan anggaran bersama.\n\nJalankan supabase/anggaran-bersama.sql di Supabase (butuh dompet-bersama.sql lebih dulu).\n\n" + err.error.message);
       return;
     }
     setMode("lihat");
@@ -180,28 +215,29 @@ export default function Anggaran() {
   if (!data) return <Memuat jumlah={5} />;
 
   const bersamaMode = data.sc !== "pribadi";
-  const dompetNama = data.bersama.find((w) => w.id === data.sc)?.nama || "";
+  const partnerNama = data.partners.find((p) => p.id === data.sc)?.nama || "";
   const berAnggaran = rows.filter((r) => r.anggaran > 0);
   const totalAnggaran = berAnggaran.reduce((s, r) => s + r.anggaran, 0);
   const totalTerpakai = berAnggaran.reduce((s, r) => s + r.terpakai, 0);
   const sisa = totalAnggaran - totalTerpakai;
   const totalDraft = rows.reduce((s, r) => s + angka(draft[r.key]), 0);
+  const jumlahDompet = bersamaMode ? dompetBersama(data.sc).length : 0;
 
   return (
     <div>
       <Judul
         anak="Anggaran"
-        keterangan={bersamaMode ? `Bersama · ${dompetNama}` : "Batas belanja per kategori tiap bulan"}
+        keterangan={bersamaMode ? `Bersama ${partnerNama}` : "Batas belanja per kategori tiap bulan"}
       />
 
-      {data.bersama.length > 0 && (
+      {data.partners.length > 0 && (
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
           <button onClick={() => setScope("pribadi")}
             className={`chip shrink-0 ${data.sc === "pribadi" ? "chip-aktif" : ""}`}>Pribadi</button>
-          {data.bersama.map((w) => (
-            <button key={w.id} onClick={() => setScope(w.id)}
-              className={`chip shrink-0 whitespace-nowrap ${data.sc === w.id ? "chip-aktif" : ""}`}>
-              🤝 {w.nama}
+          {data.partners.map((p) => (
+            <button key={p.id} onClick={() => setScope(p.id)}
+              className={`chip shrink-0 whitespace-nowrap ${data.sc === p.id ? "chip-aktif" : ""}`}>
+              🤝 {p.nama}
             </button>
           ))}
         </div>
@@ -217,10 +253,12 @@ export default function Anggaran() {
         <>
           {bersamaMode && (
             <p className="mb-3 text-xs text-muted">
-              Anggaran ini dipakai berdua. Perhitungan terpakai dari semua transaksi di
-              dompet <b>{dompetNama}</b>, dicocokkan lewat nama kategori.
+              Anggaran ini dilihat & diubah kamu berdua. Terpakainya dijumlahkan dari
+              pengeluaran di <b>{jumlahDompet} dompet bersama</b> kamu &amp; {partnerNama},
+              dicocokkan lewat nama kategori.
             </p>
           )}
+
           <div className="mb-3 space-y-2">
             <div className="flex flex-wrap gap-2">
               <button className="chip" onClick={isiBulanLalu}>Isi dari belanja bulan lalu</button>
@@ -228,17 +266,17 @@ export default function Anggaran() {
                 Kosongkan
               </button>
             </div>
-            {(data.sc !== "pribadi" || data.bersama.length > 0) && (
+            {(bersamaMode || data.partners.length > 0) && (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted">Salin dari:</span>
-                {data.sc !== "pribadi" && (
+                {bersamaMode && (
                   <button className="chip" onClick={() => salinDari("pribadi")}>Anggaran pribadi</button>
                 )}
-                {data.bersama
-                  .filter((w) => w.id !== data.sc)
-                  .map((w) => (
-                    <button key={w.id} className="chip whitespace-nowrap" onClick={() => salinDari(w.id)}>
-                      🤝 {w.nama}
+                {data.partners
+                  .filter((p) => p.id !== data.sc)
+                  .map((p) => (
+                    <button key={p.id} className="chip whitespace-nowrap" onClick={() => salinDari(p.id)}>
+                      🤝 {p.nama}
                     </button>
                   ))}
               </div>
@@ -295,7 +333,7 @@ export default function Anggaran() {
 
           {berAnggaran.length === 0 ? (
             <Kosong
-              judul={bersamaMode ? "Belum ada anggaran bersama" : "Belum ada anggaran bulan ini"}
+              judul={bersamaMode ? `Belum ada anggaran bersama ${partnerNama}` : "Belum ada anggaran bulan ini"}
               ajakan="Ketuk tombol di atas — semua kategori muncul sekaligus, tinggal isi angkanya. Ada tombol “isi dari belanja bulan lalu” juga."
             />
           ) : (

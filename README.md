@@ -70,24 +70,23 @@ diubah pemiliknya. Anggota bisa keluar kapan saja lewat panel dompet.
 
 ### Anggaran bersama
 
-Di halaman **Anggaran**, kalau kamu punya dompet bersama muncul chip
-**Pribadi / 🤝 &lt;nama dompet&gt;** di atas. Pilih dompet bersama untuk
-mengatur anggaran yang **dilihat & diubah kedua anggota**. Terpakainya
-dihitung dari semua transaksi di dompet itu (dari siapa pun), dicocokkan
-berdasarkan **nama kategori** — jadi kategori "Makan & minum" milik masing-masing
-tetap dijumlahkan jadi satu.
+Kalau kamu berbagi dompet dengan seseorang, di halaman **Anggaran** muncul
+chip **Pribadi / 🤝 &lt;nama pasangan&gt;**. Anggaran bersama itu milik
+**kalian berdua** — dilihat & diubah keduanya — bukan milik satu dompet.
 
-Pembuatannya dibuat cepat: tombol **Buat/Atur anggaran** membuka satu layar
-berisi semua kategori sekaligus — tinggal isi angkanya. Ada tombol **"Isi
-dari belanja bulan lalu"** (mengisi semua sekaligus dari realisasi bulan lalu)
-dan tiap baris menampilkan angka bulan lalu yang bisa dipakai sekali ketuk.
+"Terpakai" dijumlahkan dari pengeluaran di **semua dompet bersama** antara
+kamu & pasangan itu (dompet mana pun, dari siapa pun yang mencatat),
+dicocokkan berdasarkan **nama kategori** — jadi "Makan & minum" milik
+masing-masing tetap dihitung jadi satu.
 
-Di baris **"Salin dari:"** kamu bisa menyalin nilai anggaran dari
-**Anggaran pribadi** atau dari **dompet bersama lain** — dicocokkan per nama
-kategori, dan masih bisa diubah sebelum disimpan.
+Pembuatannya ringkas: tombol **Buat/Atur anggaran** membuka satu layar
+berisi semua kategori sekaligus — tinggal isi angkanya. Tombol **"Isi dari
+belanja bulan lalu"** mengisi semua sekaligus; tiap baris juga menampilkan
+angka bulan lalu yang bisa dipakai sekali ketuk. Di baris **"Salin dari:"**
+bisa menyalin nilai dari **Anggaran pribadi** atau pasangan lain.
 
-> Butuh `supabase/anggaran-bersama.sql` (jalankan sekali untuk database lama;
-> perlu `dompet-bersama.sql` lebih dulu). Instalasi baru sudah lengkap dari
+> Butuh `supabase/anggaran-bersama.sql` (jalankan sekali; perlu
+> `dompet-bersama.sql` lebih dulu). Instalasi baru sudah lengkap dari
 > `schema.sql`.
 
 > Fitur ini butuh tabel & kebijakan tambahan. Kalau database-mu **sudah
