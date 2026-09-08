@@ -34,7 +34,7 @@ export default function Dashboard() {
     try { perlu = await prosesBerulang(); } catch (e) {}
     setPending(perlu);
 
-    const [saldo, trx, kat, anggaran, target, profil, cepat, anggota] = await Promise.all([
+    const [saldo, trx, kat, anggaran, target, profil, cepat, anggota, berbagi] = await Promise.all([
       supabase.from("wallet_balances").select("*").order("urutan"),
       supabase.from("transactions").select("*").gte("tanggal", awal).lte("tanggal", akhir).order("tanggal", { ascending: false }),
       supabase.from("categories").select("*"),
@@ -43,17 +43,30 @@ export default function Dashboard() {
       supabase.from("profiles").select("nama").eq("id", user.id).maybeSingle(),
       supabase.from("quick_txns").select("*").order("urutan").order("created_at"),
       supabase.from("wallet_members").select("wallet_id,user_id"),
+      supabase.from("shared_budgets").select("*").eq("periode", periode)
+        .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
     ]);
 
     const wallets = saldo.data || [];
     const members = anggota.data || [];
+    const memberSet = new Set(members.map((m) => `${m.wallet_id}:${m.user_id}`));
 
-    // dompet bersama: yang kuikuti + yang kumiliki dan punya anggota lain
-    const idKuikuti = new Set(members.filter((m) => m.user_id === user.id).map((m) => m.wallet_id));
-    const adaAnggota = new Set(members.map((m) => m.wallet_id));
-    const dompetBersama = new Set(
-      wallets.filter((w) => idKuikuti.has(w.id) || (w.user_id === user.id && adaAnggota.has(w.id))).map((w) => w.id)
-    );
+    // dompet bersama + siapa pasangan pada tiap dompet
+    const walletsByPartner = {};
+    const dompetBersama = new Set();
+    wallets.forEach((w) => {
+      let partner = null;
+      if (w.user_id === user.id) {
+        const m = members.find((x) => x.wallet_id === w.id);
+        if (m) partner = m.user_id;
+      } else if (memberSet.has(`${w.id}:${user.id}`)) {
+        partner = w.user_id;
+      }
+      if (partner) {
+        dompetBersama.add(w.id);
+        (walletsByPartner[partner] ||= []).push(w.id);
+      }
+    });
 
     let aktivitas = [];
     if (dompetBersama.size) {
@@ -67,24 +80,27 @@ export default function Dashboard() {
     }
 
     const trxData = trx.data || [];
-    const orangIds = [...new Set(
-      [...trxData, ...aktivitas].map((t) => t.user_id).filter((id) => id && id !== user.id)
-    )];
+    const orangIds = [...new Set([
+      ...[...trxData, ...aktivitas].map((t) => t.user_id).filter((id) => id && id !== user.id),
+      ...Object.keys(walletsByPartner),
+    ])];
+    let namaOrang = {};
     if (orangIds.length) {
       const { data: p } = await supabase.from("profiles").select("id,nama").in("id", orangIds);
-      const peta = {};
-      (p || []).forEach((x) => { peta[x.id] = x.nama || "Anggota"; });
-      setPencatat(peta);
-    } else {
-      setPencatat({});
+      (p || []).forEach((x) => { namaOrang[x.id] = x.nama || "Anggota"; });
     }
+    setPencatat(namaOrang);
 
     setNama(profil.data?.nama || "");
     setData({
+      me: user.id,
       dompet: wallets,
       transaksi: trxData,
       kategori: kat.data || [],
       anggaran: anggaran.data || [],
+      sharedBudgets: berbagi.data || [],
+      walletsByPartner,
+      namaPartner: namaOrang,
       target: target.data || [],
       cepat: cepat.data || [],
       aktivitas,
@@ -126,19 +142,47 @@ export default function Dashboard() {
   const petaKategori = Object.fromEntries(data.kategori.map((k) => [k.id, k]));
   const petaDompet = Object.fromEntries(data.dompet.map((d) => [d.id, d]));
 
+  const namaKat = Object.fromEntries(data.kategori.map((k) => [k.id, k.nama]));
+
   const anggaranPakai = data.anggaran.map((a) => {
     const terpakai = data.transaksi
       .filter((t) => t.tipe === "expense" && t.category_id === a.category_id)
       .reduce((s, t) => s + Number(t.jumlah), 0);
     return { ...a, terpakai, kategori: petaKategori[a.category_id] };
   });
-  const totalAnggaran = anggaranPakai.reduce((s, a) => s + Number(a.jumlah), 0);
-  const terpakaiAnggaran = anggaranPakai.reduce((s, a) => s + a.terpakai, 0);
-  const sisaAnggaran = totalAnggaran - terpakaiAnggaran;
-  const saldoBayangan = totalSaldo - totalAnggaran;
   const anggaranTampil = [...anggaranPakai]
     .sort((a, b) => b.terpakai / b.jumlah - a.terpakai / a.jumlah)
     .slice(0, 3);
+
+  // ringkasan per "kelompok anggaran": pribadi + tiap pasangan
+  const kelompok = [];
+  const pribadiTotal = anggaranPakai.reduce((s, a) => s + Number(a.jumlah), 0);
+  if (pribadiTotal > 0) {
+    kelompok.push({
+      key: "pribadi", label: "Pribadi",
+      total: pribadiTotal,
+      terpakai: anggaranPakai.reduce((s, a) => s + a.terpakai, 0),
+    });
+  }
+  const perPasangan = {};
+  data.sharedBudgets.forEach((b) => {
+    const lawan = b.user_a === data.me ? b.user_b : b.user_a;
+    (perPasangan[lawan] ||= []).push(b);
+  });
+  Object.entries(perPasangan).forEach(([pid, list]) => {
+    const wids = new Set(data.walletsByPartner[pid] || []);
+    const names = new Set(list.map((b) => b.kategori_nama));
+    const total = list.reduce((s, b) => s + Number(b.jumlah), 0);
+    const terpakai = data.transaksi
+      .filter((t) => t.tipe === "expense" && wids.has(t.wallet_id) && names.has(namaKat[t.category_id]))
+      .reduce((s, t) => s + Number(t.jumlah), 0);
+    if (total > 0) {
+      kelompok.push({ key: pid, label: `🤝 ${data.namaPartner[pid] || "Bersama"}`, total, terpakai });
+    }
+  });
+
+  const totalAnggaran = kelompok.reduce((s, g) => s + g.total, 0);
+  const saldoBayangan = totalSaldo - totalAnggaran;
   const samar = (n) => (saldoTampil ? uang(n) : `Rp ${SALDO_SAMAR}`);
 
   const jam = new Date().getHours();
@@ -301,21 +345,27 @@ export default function Dashboard() {
             <Link href="/anggaran" className="text-sm underline">Atur</Link>
           </div>
 
-          <Kartu datar className="mb-3 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span>{sisaAnggaran < 0 ? "Melebihi anggaran" : "Sisa anggaran"}</span>
-              <span className="num font-semibold"
-                style={{ color: sisaAnggaran < 0 ? "var(--brick)" : "var(--ink)" }}>
-                {uang(Math.abs(sisaAnggaran))}
-              </span>
-            </div>
-            <Bilah persen={(terpakaiAnggaran / totalAnggaran) * 100}
-              warna={terpakaiAnggaran > totalAnggaran ? "var(--brick)"
-                : terpakaiAnggaran > totalAnggaran * 0.8 ? "var(--mustard)" : "var(--teal)"} />
-            <p className="text-xs text-muted num">
-              Terpakai {uangRingkas(terpakaiAnggaran)} dari {uangRingkas(totalAnggaran)}
-            </p>
-          </Kartu>
+          <div className="mb-3 space-y-2">
+            {kelompok.map((g) => {
+              const persen = g.total ? (g.terpakai / g.total) * 100 : 0;
+              const sisa = g.total - g.terpakai;
+              return (
+                <Kartu key={g.key} datar className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{g.label}</span>
+                    <span className="num" style={{ color: sisa < 0 ? "var(--brick)" : "var(--ink)" }}>
+                      {sisa < 0 ? "− " : "sisa "}{uang(Math.abs(sisa))}
+                    </span>
+                  </div>
+                  <Bilah persen={persen}
+                    warna={persen > 100 ? "var(--brick)" : persen > 80 ? "var(--mustard)" : "var(--teal)"} />
+                  <p className="text-xs text-muted num">
+                    Terpakai {uangRingkas(g.terpakai)} dari {uangRingkas(g.total)}
+                  </p>
+                </Kartu>
+              );
+            })}
+          </div>
 
           <div className="space-y-3">
             {anggaranTampil.map((a) => {

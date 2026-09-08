@@ -25,7 +25,7 @@ const BANTUAN = [
       },
       {
         q: "Apa itu “Saldo bayangan” di Beranda?",
-        a: "Total saldo dikurangi total anggaran bulan ini. Angka ini menggambarkan uang yang benar-benar “bebas” setelah kamu menyisihkan rencana belanja sebulan. Bisa negatif — artinya anggaranmu melebihi saldo. Muncul di kartu saldo hanya kalau kamu punya anggaran bulan ini.",
+        a: "Total saldo dikurangi total anggaran bulan ini (pribadi + semua anggaran bersama). Menggambarkan uang yang benar-benar “bebas” setelah menyisihkan rencana belanja sebulan. Bisa negatif — berarti anggaranmu melebihi saldo. Muncul di kartu saldo hanya kalau ada anggaran bulan ini. Bagian “Anggaran bulan ini” di bawahnya menampilkan sisa & progres tiap kelompok: Pribadi dan 🤝 tiap pasangan.",
       },
     ],
   },
