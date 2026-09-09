@@ -77,7 +77,9 @@ chip **Pribadi / 🤝 &lt;nama pasangan&gt;**. Anggaran bersama itu milik
 "Terpakai" dijumlahkan dari pengeluaran di **semua dompet bersama** antara
 kamu & pasangan itu (dompet mana pun, dari siapa pun yang mencatat),
 dicocokkan berdasarkan **nama kategori** — jadi "Makan & minum" milik
-masing-masing tetap dihitung jadi satu.
+masing-masing tetap dihitung jadi satu. Kalau kamu menganggarkan kategori
+yang pasanganmu belum punya, kategori itu otomatis dibuatkan untuknya
+(fungsi `sinkron_kategori_bersama`) supaya dia juga bisa mencatat ke sana.
 
 Pembuatannya ringkas: tombol **Buat/Atur anggaran** membuka satu layar
 berisi semua kategori sekaligus — tinggal isi angkanya. Tombol **"Isi dari

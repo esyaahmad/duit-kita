@@ -109,6 +109,19 @@ export default function Dashboard() {
 
   useEffect(() => { muat(); }, [muat]);
 
+  // Samakan kategori kedua pihak untuk anggaran bersama (idempoten di server).
+  useEffect(() => {
+    if (!data?.sharedBudgets?.length) return;
+    const perLawan = {};
+    data.sharedBudgets.forEach((b) => {
+      const lawan = b.user_a === data.me ? b.user_b : b.user_a;
+      (perLawan[lawan] ||= new Set()).add(b.kategori_nama);
+    });
+    Object.entries(perLawan).forEach(([lawan, set]) => {
+      supabase.rpc("sinkron_kategori_bersama", { p_lawan: lawan, p_nama: [...set] });
+    });
+  }, [data, supabase]);
+
   const pesan = (t) => { setToast(t); setTimeout(() => setToast(null), 2200); };
 
   async function catatCepat(q) {

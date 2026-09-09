@@ -87,6 +87,16 @@ export default function Anggaran() {
   useEffect(() => { muat(); }, [muat]);
   useEffect(() => { setMode("lihat"); }, [scope, periode]);
 
+  // Perbaiki data lama: samakan kategori kedua pihak untuk anggaran bersama
+  // yang sudah ada (idempoten di server).
+  useEffect(() => {
+    if (!data || data.sc === "pribadi") return;
+    const nama = [...new Set((data.sharedByPartner[data.sc] || []).map((b) => b.kategori_nama))];
+    if (nama.length) {
+      supabase.rpc("sinkron_kategori_bersama", { p_lawan: data.sc, p_nama: nama });
+    }
+  }, [data, supabase]);
+
   // dompet yang dibagi antara aku & partnerId
   const dompetBersama = (partnerId) => {
     if (!data) return [];
@@ -175,6 +185,16 @@ export default function Anggaran() {
     const { data: { user } } = await supabase.auth.getUser();
     const now = new Date().toISOString();
     const pasangan = data.sc !== "pribadi" ? [data.me, data.sc].sort() : null;
+
+    // Anggaran bersama: pastikan kedua pihak punya kategori bernama sama
+    // supaya keduanya bisa mencatat pengeluaran yang terhitung.
+    if (data.sc !== "pribadi") {
+      const nama = rows.filter((r) => angka(draft[r.key]) > 0).map((r) => r.key);
+      if (nama.length) {
+        await supabase.rpc("sinkron_kategori_bersama", { p_lawan: data.sc, p_nama: nama });
+      }
+    }
+
     const ops = [];
 
     for (const r of rows) {

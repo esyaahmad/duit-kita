@@ -106,7 +106,7 @@ const BANTUAN = [
       },
       {
         q: "Anggaran bersama (berdua)",
-        a: "Kalau kamu berbagi dompet dengan seseorang, di halaman Anggaran muncul chip “Pribadi / 🤝 nama pasangan”. Anggaran bersama itu milik kalian berdua — dilihat & diubah keduanya. Terpakainya dijumlahkan dari pengeluaran di semua dompet bersama antara kamu & pasangan itu, dari siapa pun, dicocokkan lewat nama kategori.",
+        a: "Kalau kamu berbagi dompet dengan seseorang, di halaman Anggaran muncul chip “Pribadi / 🤝 nama pasangan”. Anggaran bersama itu milik kalian berdua — dilihat & diubah keduanya. Terpakainya dijumlahkan dari pengeluaran di semua dompet bersama antara kamu & pasangan itu, dari siapa pun, dicocokkan lewat nama kategori. Kalau kamu memakai kategori yang pasanganmu belum punya, kategori itu otomatis dibuatkan untuk pasangan supaya dia juga bisa mencatat ke anggaran yang sama.",
       },
       {
         q: "Menyalin anggaran ke bersama / pribadi",

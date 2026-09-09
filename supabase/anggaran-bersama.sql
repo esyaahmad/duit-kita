@@ -49,3 +49,32 @@ create policy "anggaran bersama: pihak terkait" on public.shared_budgets
       case when auth.uid() = user_a then user_b else user_a end
     )
   );
+
+-- Anggaran bersama dicocokkan lewat NAMA kategori. Supaya kedua pihak
+-- sama-sama bisa mencatat transaksi yang terhitung ke anggaran itu,
+-- pastikan keduanya punya kategori (expense) bernama sama.
+create or replace function public.sinkron_kategori_bersama(p_lawan uuid, p_nama text[])
+returns void
+language plpgsql security definer set search_path = public as $$
+declare n text;
+begin
+  if p_lawan is null or auth.uid() = p_lawan or not public.shares_any_wallet(p_lawan) then
+    raise exception 'bukan pasangan berbagi dompet';
+  end if;
+  foreach n in array coalesce(p_nama, array[]::text[]) loop
+    if n is null or btrim(n) = '' then continue; end if;
+    insert into public.categories (user_id, nama, tipe, ikon)
+    select x.uid, n, 'expense',
+      coalesce((select c.ikon from public.categories c
+                where c.nama = n and c.tipe = 'expense'
+                  and c.user_id in (auth.uid(), p_lawan) limit 1), '📦')
+    from (values (auth.uid()), (p_lawan)) as x(uid)
+    where not exists (
+      select 1 from public.categories c
+      where c.user_id = x.uid and c.nama = n and c.tipe = 'expense'
+    );
+  end loop;
+end;
+$$;
+
+grant execute on function public.sinkron_kategori_bersama(uuid, text[]) to authenticated;
